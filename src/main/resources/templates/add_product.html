@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>პროდუქტის დამატება</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="container mt-5">
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4>ახალი ხელსაწყოს დამატება</h4>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/products/add}" th:object="${product}" method="post">
+
+                    <div class="mb-3">
+                        <label>დასახელება</label>
+                        <input type="text" th:field="*{name}" class="form-control" placeholder="მაგ: Milwaukee Drill M18" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>ფასი (₾)</label>
+                        <input type="number" step="0.01" th:field="*{price}" class="form-control" placeholder="150.00" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>სურათის URL (დროებით)</label>
+                        <input type="text" th:field="*{imageUrl}" class="form-control" placeholder="https://...">
+                        <small class="text-muted">ჩააკოპირე სურათის ლინკი ინტერნეტიდან</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">დამატება</button>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <a href="/" class="btn btn-secondary">უკან დაბრუნება</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

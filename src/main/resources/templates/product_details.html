@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title th:text="${product.name}">დეტალები</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+<!-- ნავიგაცია -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">ToolMasters 🛠️</a>
+
+    <!-- კალათა -->
+    <a href="/cart" class="btn btn-outline-warning position-relative">
+      🛒 კალათა
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+            th:if="${cartCount != null && cartCount > 0}"
+            th:text="${cartCount}">0</span>
+    </a>
+  </div>
+</nav>
+
+<div class="container my-5">
+  <div class="row bg-white p-4 shadow-sm rounded">
+
+    <!-- მარცხენა მხარე: სურათი -->
+    <div class="col-md-6 text-center mb-4">
+
+      <!-- 1. ინტერნეტის სურათი (იწყება http-ით) -->
+      <img th:if="${product.imageUrl != null and #strings.startsWith(product.imageUrl, 'http')}"
+           th:src="${product.imageUrl}"
+           class="img-fluid rounded shadow-sm" style="max-height: 500px;" alt="Product Image">
+
+      <!-- 2. ატვირთული სურათი (არ იწყება http-ით) -->
+      <img th:if="${product.imageUrl != null and !#strings.startsWith(product.imageUrl, 'http') and product.imageUrl != 'link' and product.imageUrl != ''}"
+           th:src="@{'/images/' + ${product.imageUrl}}"
+           class="img-fluid rounded shadow-sm" style="max-height: 500px;" alt="Product Image">
+
+      <!-- 3. ლოგო (თუ სურათი არ არის) -->
+      <img th:if="${product.imageUrl == null or product.imageUrl == 'link' or product.imageUrl == ''}"
+           th:src="@{/uploads/logo.png}"
+           class="img-fluid rounded shadow-sm" style="max-height: 500px;" alt="Default Logo">
+
+    </div>
+
+    <!-- მარჯვენა მხარე: ინფორმაცია -->
+    <div class="col-md-6">
+      <h6 class="text-muted text-uppercase" th:text="${product.sku}">SKU: 12345</h6>
+      <h1 class="fw-bold mb-3" th:text="${product.name}">M18 Fuel Drill</h1>
+
+      <h2 class="text-danger fw-bold mb-4" th:text="${product.price} + ' ₾'">500 ₾</h2>
+
+      <div class="mb-4">
+        <h5>მახასიათებლები:</h5>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex justify-content-between">
+            <strong>სისტემა (Voltage):</strong> <span th:text="${product.voltage}">M18</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <strong>ტიპი:</strong>
+            <span th:text="${product.isToolOnly} ? 'Tool Only (ინსტრუმენტი)' : 'Kit (კომპლექტი)'"></span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <strong>ტექნოლოგია:</strong>
+            <span th:text="${product.isBrushless != null && product.isBrushless} ? 'FUEL™ (Brushless)' : 'სტანდარტული'"></span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <strong>მარაგშია:</strong>
+            <span class="badge bg-success" th:text="${product.stockQuantity} + ' ცალი'">5</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="d-grid gap-2">
+        <a th:href="@{/cart/add/{id}(id=${product.id})}" class="btn btn-primary btn-lg">კალათაში დამატება 🛒</a>
+        <a href="/" class="btn btn-outline-secondary">უკან დაბრუნება</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="text-center py-4 mt-5 text-muted border-top">
+  <p>&copy; 2026 ToolMasters. ყველა უფლება დაცულია.</p>
+</footer>
+
+</body>
+</html>
