@@ -18,15 +18,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                        // აი აქ ჩაამატე "/order-success"
-                        .requestMatchers("/", "/product/**", "/cart/**", "/checkout/**", "/order-success", "/images/**", "/css/**", "/uploads/**").permitAll()
-
+                        .requestMatchers("/", "/product/**", "/cart/**", "/checkout/**",
+                                "/order-success", "/images/**", "/css/**",
+                                "/uploads/**", "/sitemap.xml", "/robots.txt").permitAll()
                         .anyRequest().authenticated()
                 )
-
                 .formLogin((form) -> form
-                        .permitAll() // Login გვერდი ყველასთვის ღიაა
-                        .defaultSuccessUrl("/", true) // შესვლის მერე გადადი მთავარზე
+                        .permitAll()
+                        .defaultSuccessUrl("/", true)
                 )
                 .logout((logout) -> logout.permitAll());
 
@@ -35,10 +34,9 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        // დროებითი ადმინი
         UserDetails admin = User.withDefaultPasswordEncoder()
                 .username("admin")
-                .password("admin123") // პაროლი: admin123
+                .password("admin123")
                 .roles("ADMIN")
                 .build();
 
