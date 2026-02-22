@@ -42,6 +42,20 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    // ProductService.java-ში დაამატე ეს მეთოდი:
+
+    // 6. მარაგის შემცირება (შეძენის შემდეგ)
+    public void reduceStock(Long productId, int quantity) {
+        Product product = productRepository.findById(productId).orElse(null);
+        if (product != null && product.getStockQuantity() != null) {
+            int newStock = product.getStockQuantity() - quantity;
+            product.setStockQuantity(Math.max(0, newStock)); // 0-ზე ნაკლები არ გახდეს
+            productRepository.save(product);
+        }
+    }
+
+
+
     // 5. სურათის ატვირთვა (გაერთიანებული ვერსია)
     public String uploadImage(MultipartFile file) throws IOException {
         if (file.isEmpty()) return null;

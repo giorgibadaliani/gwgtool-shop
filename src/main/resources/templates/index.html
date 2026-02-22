@@ -29,7 +29,7 @@
         </form>
       </div>
 
-      <!-- 3. კალათა (ყველასთვის) -->
+      <!-- კალათა (ყველასთვის) -->
       <a href="/cart" class="btn btn-outline-warning position-relative">
         🛒 კალათა
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -52,30 +52,40 @@
     <div class="col" th:each="product : ${products}">
       <div class="card h-100 product-card border-0 shadow-sm">
 
-        <!-- სურათის ჩვენების ახალი ლოგიკა -->
-
-        <!-- 1. ინტერნეტის სურათი (იწყება http-ით) -->
+        <!-- 1. ინტერნეტის სურათი -->
         <img th:if="${product.imageUrl != null and #strings.startsWith(product.imageUrl, 'http')}"
              th:src="${product.imageUrl}"
              class="card-img-top" alt="Web Image">
 
-        <!-- 2. ატვირთული სურათი (არ იწყება http-ით და არ არის 'link') -->
+        <!-- 2. ატვირთული სურათი -->
         <img th:if="${product.imageUrl != null and !#strings.startsWith(product.imageUrl, 'http') and product.imageUrl != 'link' and product.imageUrl != ''}"
              th:src="@{'/images/' + ${product.imageUrl}}"
              class="card-img-top" alt="Local Image">
 
-        <!-- 3. თუ სურათი არ არის (ან წერია 'link') -->
+        <!-- 3. ლოგო (სურათი არ არის) -->
         <img th:if="${product.imageUrl == null or product.imageUrl == 'link' or product.imageUrl == ''}"
              th:src="@{/uploads/logo.png}"
              class="card-img-top" alt="Default Logo">
-
 
         <div class="card-body d-flex flex-column">
           <h5 class="card-title" th:text="${product.name}">დასახელება</h5>
           <p class="card-text text-muted small" th:text="${product.sku}">SKU</p>
 
           <div class="mt-auto">
-            <h4 class="text-danger fw-bold mb-3" th:text="${product.price} + ' ₾'">0 ₾</h4>
+            <h4 class="text-danger fw-bold mb-2" th:text="${product.price} + ' ₾'">0 ₾</h4>
+
+            <!-- ✅ სტოკის ინდიკატორი — ფასის ქვემოთ, ღილაკების ზემოთ -->
+            <div class="mb-3">
+              <small th:if="${product.stockQuantity != null and product.stockQuantity > 5}"
+                     class="text-success fw-semibold">✅ მარაგშია</small>
+              <small th:if="${product.stockQuantity != null and product.stockQuantity <= 5 and product.stockQuantity > 0}"
+                     class="text-warning fw-semibold">
+                ⚠️ მარაგი მცირეა (<span th:text="${product.stockQuantity}"></span> ც.)
+              </small>
+              <small th:if="${product.stockQuantity == null or product.stockQuantity == 0}"
+                     class="text-danger fw-semibold">❌ არ არის მარაგში</small>
+            </div>
+
             <div class="d-grid gap-2">
               <a th:href="@{/product/{id}(id=${product.id})}" class="btn btn-primary">დეტალები / ყიდვა</a>
               <a th:href="@{/cart/add/{id}(id=${product.id})}" class="btn btn-outline-success btn-sm">🛒 დამატება</a>
@@ -95,6 +105,33 @@
 <footer class="text-center py-4 mt-5 text-muted border-top">
   <p>&copy; 2026 ToolMasters. ყველა უფლება დაცულია.</p>
 </footer>
+
+<!-- ✅ Cookie Banner -->
+<div id="cookieBanner"
+     style="display:none; position:fixed; bottom:0; left:0; right:0;
+            background:#212529; color:#fff; padding:14px 20px;
+            z-index:9999; border-top:3px solid #ffc107;">
+  <div class="container d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <p class="mb-0" style="font-size:14px;">
+      🍪 ჩვენ ვიყენებთ cookie-ებს საიტის გამართული მუშაობისთვის.
+    </p>
+    <button onclick="acceptCookies()" class="btn btn-warning btn-sm fw-bold">
+      ✓ ვეთანხმები
+    </button>
+  </div>
+</div>
+
+<script>
+  function acceptCookies() {
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookieBanner').style.display = 'none';
+  }
+  window.addEventListener('load', function () {
+    if (!localStorage.getItem('cookiesAccepted')) {
+      document.getElementById('cookieBanner').style.display = 'block';
+    }
+  });
+</script>
 
 </body>
 </html>
