@@ -48,7 +48,7 @@ public class ProductController {
     @GetMapping("/products")
     public String listProducts(Model model) {
         model.addAttribute("products", productService.getAllProducts());
-        return "products"; // ეს არის ადმინის ცხრილი
+        return "products";
     }
 
     // 4. ახალი პროდუქტის დამატების გვერდი (ფორმა)
@@ -59,19 +59,22 @@ public class ProductController {
     }
 
     // 5. პროდუქტის შენახვა (ახალის ან რედაქტირებულის)
-    // ეს მეთოდი ამუშავებს ფორმას create_product.html-დან
+    // ✅ required=false — თუ ფაილი არ ატვირთეს, 500 error არ ხდება
     @PostMapping("/products")
-    public String saveProduct(@ModelAttribute("product") Product product,
-                              @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
+    public String saveProduct(
+            @ModelAttribute("product") Product product,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile)
+            throws IOException {
 
-        // თუ სურათი ატვირთეს, შეინახე
-        if (!imageFile.isEmpty()) {
+        // თუ ფაილი ატვირთეს — ფაილი ინახება
+        if (imageFile != null && !imageFile.isEmpty()) {
             String fileName = productService.uploadImage(imageFile);
             product.setImageUrl(fileName);
         }
+        // თუ ფაილი არ ატვირთეს — imageUrl (URL ველი) რჩება
 
         productService.saveProduct(product);
-        return "redirect:/products"; // ბრუნდება ადმინ სიაზე
+        return "redirect:/products";
     }
 
     // 6. რედაქტირების გვერდის გახსნა
@@ -79,11 +82,11 @@ public class ProductController {
     public String editProductForm(@PathVariable Long id, Model model) {
         Product product = productService.getProductById(id);
         model.addAttribute("product", product);
-        return "create_product"; // იგივე ფორმას ვიყენებთ რედაქტირებისთვისაც
+        return "create_product";
     }
 
     // 7. წაშლის ბრძანება
-    @GetMapping("/products/delete/{id}") // ან @PostMapping, გააჩნია HTML-ში როგორ გაქვს
+    @GetMapping("/products/delete/{id}")
     public String deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return "redirect:/products";
