@@ -22,68 +22,63 @@
       <th>ID</th>
       <th>თარიღი</th>
       <th>მყიდველი</th>
-      <th>ნივთები</th>
+      <th>ნივთები + SKU</th>
       <th>თანხა</th>
       <th>სტატუსი</th>
-      <th>მოქმედება</th> <!-- ეს ახალი სვეტია ღილაკებისთვის -->
+      <th>მოქმედება</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="order : ${orders}">
-      <!-- 1. ID -->
+
       <td th:text="${order.id}">1</td>
 
-      <!-- 2. თარიღი -->
       <td th:text="${#temporals.format(order.orderDate, 'dd-MM HH:mm')}">Date</td>
 
-      <!-- 3. მყიდველი (სახელი + ტელეფონი ერთ უჯრაში) -->
       <td>
         <div th:text="${order.customerName}" class="fw-bold">Giorgi</div>
         <div th:text="${order.customerPhone}" class="small text-muted">555...</div>
       </td>
 
-      <!-- 4. ნივთები -->
-      <td th:text="${order.itemsDescription}" class="small text-truncate" style="max-width: 200px;">Drill...</td>
-
-      <!-- 5. თანხა -->
-      <td th:text="${order.totalAmount} + ' ₾'" class="fw-bold">100 ₾</td>
-
-      <!-- 6. სტატუსი (ფერადი ბეიჯით) -->
-      <td>
-                    <span class="badge"
-                          th:classappend="${order.status == 'NEW' ? 'bg-primary' : (order.status == 'SHIPPED' ? 'bg-warning text-dark' : 'bg-success')}"
-                          th:text="${order.status}">
-                    </span>
+      <!-- ✅ ნივთები + SKU — ახალი ფორმატი -->
+      <td style="max-width: 250px;">
+        <div class="small" th:text="${order.itemsDescription}"></div>
       </td>
 
-      <!-- 7. ღილაკები (სტატუსის შეცვლა და წაშლა) -->
+      <td th:text="${order.totalAmount} + ' ₾'" class="fw-bold">100 ₾</td>
+
+      <td>
+        <span class="badge"
+              th:classappend="${order.status == 'NEW' ? 'bg-primary' :
+                               (order.status == 'SHIPPED' ? 'bg-warning text-dark' : 'bg-success')}"
+              th:text="${order.status}">
+        </span>
+      </td>
+
       <td>
         <div class="d-flex gap-2">
-          <!-- ღილაკი: "გაგზავნა" (მხოლოდ თუ NEW არის) -->
           <form th:if="${order.status == 'NEW'}"
                 th:action="@{'/orders/' + ${order.id} + '/status'}" method="post">
             <input type="hidden" name="status" value="SHIPPED">
             <button type="submit" class="btn btn-sm btn-outline-primary">📦 გაგზავნა</button>
           </form>
 
-          <!-- ღილაკი: "ჩაბარება" (მხოლოდ თუ SHIPPED არის) -->
           <form th:if="${order.status == 'SHIPPED'}"
                 th:action="@{'/orders/' + ${order.id} + '/status'}" method="post">
             <input type="hidden" name="status" value="DELIVERED">
             <button type="submit" class="btn btn-sm btn-outline-success">✅ ჩაბარება</button>
           </form>
 
-          <!-- ღილაკი: "წაშლა" (ყოველთვის ჩანს) -->
           <form th:action="@{'/orders/' + ${order.id} + '/delete'}" method="post">
             <button type="submit" class="btn btn-sm btn-danger"
                     onclick="return confirm('ნამდვილად გინდა ამ შეკვეთის წაშლა?')">🗑️</button>
           </form>
         </div>
       </td>
+
     </tr>
     </tbody>
   </table>
-
 </div>
 
 </body>
