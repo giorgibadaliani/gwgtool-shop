@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@Profile("import")
+@Profile("milwaukee-import")
 public class MilwaukeeDataImporter implements CommandLineRunner {
 
     private final ProductRepository productRepository;
@@ -42,55 +42,49 @@ public class MilwaukeeDataImporter implements CommandLineRunner {
             try {
                 System.out.println("🔍 ვეძებ SKU: " + sku);
 
-                // Search URL — redirect-ს მიჰყვება პროდუქტის გვერდზე
-                String searchUrl = "https://www.milwaukeetool.eu/en-eu/?s=" + sku;
-
+                // ახალი, უფრო საიმედო საძიებო ლინკი
+                String searchUrl = "https://www.milwaukeetool.eu/support/search-results/?q=" + sku;
 
                 Document doc = Jsoup.connect(searchUrl)
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36")
-                        .referrer("https://www.milwaukeetool.eu")
+                        .referrer("https://www.google.com")
                         .followRedirects(true)
-                        .timeout(15000)
+                        .timeout(20000) // დრო გავზარდეთ 20 წამამდე
                         .get();
 
-                // redirect-ის შემდეგ მიმდინარე URL
                 String currentUrl = doc.location();
-                System.out.println("   → " + currentUrl);
+                System.out.println("   → მიმდინარე ლინკი: " + currentUrl);
 
-                // თუ search გვერდზე დარჩა (ვერ ვიპოვეთ)
-                if (currentUrl.contains("/search") || currentUrl.contains("?q=")) {
-                    // search results-დან პირველი პროდუქტი ამოვიღოთ
-                    Element firstResult = doc.selectFirst("a[href*='/en-eu/']");
+                // თუ ისევ ძებნის გვერდზე ვართ, ესეიგი ავტომატური გადამისამართება არ მოხდა
+                if (currentUrl.contains("search-results") || currentUrl.contains("?q=")) {
+
+                    // ვეძებთ პროდუქტის ბარათის ლინკს საძიებო შედეგებში
+                    Element firstResult = doc.selectFirst("a.product-card, .search-result a, a[href*='/en-eu/'][href*='/m18-'], a[href*='/en-eu/'][href*='/m12-'], a[href*='/en-eu/'][href*='/hand-tools/']");
+
                     if (firstResult != null) {
                         String href = firstResult.absUrl("href");
-                        if (!href.contains("/search") && !href.isEmpty()) {
-                            doc = Jsoup.connect(href)
-                                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-                                    .timeout(15000)
-                                    .get();
-                            currentUrl = href;
-                        } else {
-                            System.out.println("❌ ვერ ვიპოვე: " + sku);
-                            notFound++;
-                            Thread.sleep(1000);
-                            continue;
-                        }
+                        System.out.println("   → გადავდივარ ნაპოვნ პროდუქტზე: " + href);
+
+                        doc = Jsoup.connect(href)
+                                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36")
+                                .timeout(20000)
+                                .get();
                     } else {
-                        System.out.println("❌ ვერ ვიპოვე: " + sku);
+                        System.out.println("❌ ვერ ვიპოვე პროდუქტის ლინკი ძებნის შედეგებში: " + sku);
                         notFound++;
                         Thread.sleep(1000);
                         continue;
                     }
                 }
 
-                // პროდუქტის გვერდიდან მახასიათებლები
+                // პროდუქტის გვერდიდან მახასიათებლების ამოღება
                 StringBuilder description = new StringBuilder();
 
-                // Features სია
+                // 1. Features სია (განახლებული სელექტორები)
                 Elements features = doc.select(
                         "ul.product-features li, " +
                                 ".features-list li, " +
-                                "[class*='feature'] li, " +
+                                "ul.list-bullet li, " +
                                 ".pdp-features li, " +
                                 ".product-highlights li"
                 );
@@ -105,10 +99,10 @@ public class MilwaukeeDataImporter implements CommandLineRunner {
                     }
                 }
 
-                // Specification ცხრილი
+                // 2. Specification ცხრილი (განახლებული სელექტორები)
                 Elements specRows = doc.select(
                         ".specification-table tr, " +
-                                "[class*='spec'] tr, " +
+                                ".table-striped tr, " +
                                 "table.specs tr, " +
                                 ".pdp-specs tr"
                 );
@@ -116,7 +110,7 @@ public class MilwaukeeDataImporter implements CommandLineRunner {
                 if (!specRows.isEmpty()) {
                     description.append("\nსპეციფიკაცია:\n");
                     for (Element row : specRows) {
-                        Elements cells = row.select("td");
+                        Elements cells = row.select("td, th"); // th-ს დამატება, რადგან ხანდახან label <th>-შია
                         if (cells.size() >= 2) {
                             String key = cells.get(0).text().trim();
                             String val = cells.get(1).text().trim();
@@ -127,10 +121,14 @@ public class MilwaukeeDataImporter implements CommandLineRunner {
                     }
                 }
 
-                // თუ ვერ ამოვიღეთ — h1 სულ მცირე
+                // 3. თუ ვერ ამოვიღეთ ვერაფერი — .product-description ან h1 მაინც
                 if (description.length() < 10) {
                     Element h1 = doc.selectFirst("h1");
-                    if (h1 != null) {
+                    Element prodDesc = doc.selectFirst(".product-description, .description-text");
+
+                    if (prodDesc != null && !prodDesc.text().isEmpty()) {
+                        description.append(prodDesc.text().trim());
+                    } else if (h1 != null) {
                         description.append(h1.text().trim());
                     }
                 }
@@ -141,11 +139,12 @@ public class MilwaukeeDataImporter implements CommandLineRunner {
                     System.out.println("✅ განახლდა: " + product.getName());
                     updated++;
                 } else {
-                    System.out.println("⚠️  description ვერ ამოვიღე: " + product.getName());
+                    System.out.println("⚠️  description ვერ ამოვიღე: " + product.getName() + " (SKU: " + sku + ")");
                     notFound++;
                 }
 
-                Thread.sleep(1500);
+                // Milwaukee-ს დაცვა რომ არ დაგვბლოკოს, ცოტა მეტს ველოდებით ყოველ რექვესთზე
+                Thread.sleep(2000);
 
             } catch (Exception e) {
                 System.out.println("❌ შეცდომა SKU=" + sku + ": " + e.getMessage());
@@ -155,8 +154,8 @@ public class MilwaukeeDataImporter implements CommandLineRunner {
         }
 
         System.out.println("\n=============================");
-        System.out.println("✅ განახლდა: " + updated + " პროდუქტი");
-        System.out.println("❌ ვერ მოიძებნა: " + notFound + " პროდუქტი");
+        System.out.println("✅ სულ განახლდა: " + updated + " პროდუქტი");
+        System.out.println("❌ ვერ მოიძებნა ან ერორი: " + notFound + " პროდუქტი");
         System.out.println("=============================");
     }
 }
