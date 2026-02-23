@@ -1,6 +1,8 @@
 package ge.toolmasters.store.controller;
 
 import ge.toolmasters.store.entity.Product;
+import ge.toolmasters.store.entity.ProductCharacteristic;
+import ge.toolmasters.store.repository.ProductCharacteristicRepository;
 import ge.toolmasters.store.service.CartService;
 import ge.toolmasters.store.service.ProductService;
 import org.springframework.stereotype.Controller;
@@ -8,17 +10,25 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.util.List;
 
 @Controller
 public class ProductController {
 
     private final ProductService productService;
     private final CartService cartService;
+    private final ProductCharacteristicRepository characteristicRepo; // ✅ დაემატა მახასიათებლების ბაზა
 
-    public ProductController(ProductService productService, CartService cartService) {
+    public ProductController(ProductService productService, CartService cartService, ProductCharacteristicRepository characteristicRepo) {
         this.productService = productService;
         this.cartService = cartService;
+        this.characteristicRepo = characteristicRepo; // ✅ დაემატა კონსტრუქტორში
     }
+
+    // --- მყიდველის ნაწილი ---
+
+    // 1. მთავარი
+
 
     // --- მყიდველის ნაწილი ---
 

@@ -33,4 +33,4 @@ build/
 .vscode/
 
 
-src/main/resources/application-import.properties
+src/main/resources/application-local.properties
