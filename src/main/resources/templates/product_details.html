@@ -40,17 +40,30 @@
       </div>
 
       <!-- მახასიათებლების ცხრილი -->
-      <div th:if="${characteristics != null and not #lists.isEmpty(characteristics)}" class="mb-4">
-        <h5 class="fw-bold border-bottom pb-2">📋 მახასიათებლები</h5>
-        <table class="table table-striped table-bordered table-sm mt-3">
-          <tbody>
-          <tr th:each="char : ${characteristics}">
-            <td class="fw-bold w-50" th:text="${char.name}"></td>
-            <td th:text="${char.value}"></td>
-          </tr>
-          </tbody>
-        </table>
+      <div class="col-md-6">
+        <h6 class="text-muted text-uppercase" th:text="'SKU: ' + ${product.sku}">SKU: 12345</h6>
+        <h1 class="fw-bold mb-3" th:text="${product.name}">M18 Fuel Drill</h1>
+        <h2 class="text-danger fw-bold mb-4" th:text="${product.price} + ' ₾'">500 ₾</h2>
+
+        <div class="mb-4">
+          <span class="badge bg-success fs-6" th:text="${product.stockQuantity} + ' ცალი მარაგშია'">5 ცალი მარაგშია</span>
+        </div>
+
+        <!-- აი აქ დავამატეთ აღწერის გამოტანა! -->
+        <div class="mt-4 mb-4">
+          <h5 class="fw-bold border-bottom pb-2">📋 პროდუქტის აღწერა</h5>
+          <div class="p-3 bg-light rounded border" style="white-space: pre-wrap;"
+               th:text="${product.description != null ? product.description : 'აღწერა არ არის დამატებული.'}">
+            აქ გამოჩნდება აღწერა...
+          </div>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+          <a th:href="@{/cart/add/{id}(id=${product.id})}" class="btn btn-primary btn-lg">კალათაში დამატება 🛒</a>
+          <a href="/" class="btn btn-outline-secondary">უკან დაბრუნება</a>
+        </div>
       </div>
+
 
       <div class="d-grid gap-2 mt-4">
         <a th:href="@{/cart/add/{id}(id=${product.id})}" class="btn btn-primary btn-lg">კალათაში დამატება 🛒</a>
