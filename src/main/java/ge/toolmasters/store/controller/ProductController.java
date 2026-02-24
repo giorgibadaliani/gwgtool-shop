@@ -63,16 +63,27 @@ public class ProductController {
     @PostMapping("/products")
     public String saveProduct(
             @ModelAttribute("product") Product product,
-            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile)
-            throws IOException {
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
 
-        if (imageFile != null && !imageFile.isEmpty()) {
-            String fileName = productService.uploadImage(imageFile);
-            product.setImageUrl(fileName);
+        try {
+            // ვამოწმებთ სურათი მოვიდა თუ არა
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String fileName = productService.uploadImage(imageFile);
+                product.setImageUrl(fileName);
+            } else if (product.getId() != null) {
+                // თუ ვარედაქტირებთ და ახალი სურათი არ აგვიტვირთავს, ძველი შევინარჩუნოთ
+                Product existingProduct = productService.getProductById(product.getId());
+                if (existingProduct != null) {
+                    product.setImageUrl(existingProduct.getImageUrl());
+                }
+            }
+
+            productService.saveProduct(product);
+            return "redirect:/products";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/products?error";
         }
-
-        productService.saveProduct(product);
-        return "redirect:/products";
     }
 
     @GetMapping("/products/edit/{id}")
