@@ -35,52 +35,44 @@ public class MilwaukeeDataImporter implements CommandLineRunner {
         for (Product product : products) {
             String sku = product.getSku();
             if (sku == null || sku.isBlank()) {
-                System.out.println("⚠️  SKU არ არის: " + product.getName());
                 continue;
             }
 
             try {
                 System.out.println("🔍 ვეძებ SKU: " + sku);
 
-                // ახალი, უფრო საიმედო საძიებო ლინკი
                 String searchUrl = "https://www.milwaukeetool.eu/support/search-results/?q=" + sku;
 
                 Document doc = Jsoup.connect(searchUrl)
-                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36")
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
                         .referrer("https://www.google.com")
                         .followRedirects(true)
-                        .timeout(20000) // დრო გავზარდეთ 20 წამამდე
+                        .timeout(20000)
                         .get();
 
                 String currentUrl = doc.location();
-                System.out.println("   → მიმდინარე ლინკი: " + currentUrl);
 
-                // თუ ისევ ძებნის გვერდზე ვართ, ესეიგი ავტომატური გადამისამართება არ მოხდა
+                // 1. გადამისამართება ძებნის შედეგებიდან
                 if (currentUrl.contains("search-results") || currentUrl.contains("?q=")) {
-
-                    // ვეძებთ პროდუქტის ბარათის ლინკს საძიებო შედეგებში
                     Element firstResult = doc.selectFirst("a.product-card, .search-result a, a[href*='/en-eu/'][href*='/m18-'], a[href*='/en-eu/'][href*='/m12-'], a[href*='/en-eu/'][href*='/hand-tools/']");
 
                     if (firstResult != null) {
                         String href = firstResult.absUrl("href");
-                        System.out.println("   → გადავდივარ ნაპოვნ პროდუქტზე: " + href);
-
                         doc = Jsoup.connect(href)
-                                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36")
+                                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
                                 .timeout(20000)
                                 .get();
                     } else {
-                        System.out.println("❌ ვერ ვიპოვე პროდუქტის ლინკი ძებნის შედეგებში: " + sku);
+                        System.out.println("❌ ვერ ვიპოვე ძებნის შედეგებში: " + sku);
                         notFound++;
                         Thread.sleep(1000);
                         continue;
                     }
                 }
 
-                // პროდუქტის გვერდიდან მახასიათებლების ამოღება
                 StringBuilder description = new StringBuilder();
 
-                // 1. Features სია (განახლებული სელექტორები)
+                // 2. ამოვიღოთ მახასიათებლების სია (ბულეტები)
                 Elements features = doc.select(
                         "ul.product-features li, " +
                                 ".features-list li, " +
@@ -99,29 +91,40 @@ public class MilwaukeeDataImporter implements CommandLineRunner {
                     }
                 }
 
-                // 2. Specification ცხრილი (განახლებული სელექტორები)
+                // 3. ამოვიღოთ დეტალური ტექნიკური მონაცემები (RPM, ნიუტონმეტრი, ძაბვა და ა.შ.)
+                // Milwaukee ძირითადად იყენებს table.table-striped կლასს თავისი სპეციფიკაციებისთვის
                 Elements specRows = doc.select(
-                        ".specification-table tr, " +
-                                ".table-striped tr, " +
-                                "table.specs tr, " +
-                                ".pdp-specs tr"
+                        "table.table-striped tr, " +
+                                "table.specifications tr, " +
+                                ".tech-specs tr, " +
+                                ".specification-table tr, " +
+                                ".specs-table tr, " +
+                                "table.table tr" // ყველაზე ზოგადი მაინც დავიჭიროთ
                 );
 
                 if (!specRows.isEmpty()) {
-                    description.append("\nსპეციფიკაცია:\n");
+                    // თუ უკვე გვაქვს მახასიათებლები, ცოტა დავაშოროთ
+                    if (description.length() > 0) {
+                        description.append("\n");
+                    }
+                    description.append("დამატებითი მონაცემები:\n");
+
                     for (Element row : specRows) {
-                        Elements cells = row.select("td, th"); // th-ს დამატება, რადგან ხანდახან label <th>-შია
-                        if (cells.size() >= 2) {
+                        // ვეძებთ ორ სვეტს: 1-ლი არის პარამეტრის სახელი (მაგ. RPM), მე-2 მნიშვნელობა (მაგ. 2000)
+                        Elements cells = row.select("th, td");
+                        if (cells.size() == 2) {
                             String key = cells.get(0).text().trim();
                             String val = cells.get(1).text().trim();
-                            if (!key.isEmpty() && !val.isEmpty()) {
+
+                            // ვიზღვევთ თავს, რომ ცარიელი ან სათაურის ველები არ ჩავწეროთ
+                            if (!key.isEmpty() && !val.isEmpty() && !key.equalsIgnoreCase("Specification")) {
                                 description.append(key).append(": ").append(val).append("\n");
                             }
                         }
                     }
                 }
 
-                // 3. თუ ვერ ამოვიღეთ ვერაფერი — .product-description ან h1 მაინც
+                // 4. თუ საერთოდ ვერაფერი იპოვა, აღწერა მაინც ამოვიღოთ
                 if (description.length() < 10) {
                     Element h1 = doc.selectFirst("h1");
                     Element prodDesc = doc.selectFirst(".product-description, .description-text");
@@ -133,18 +136,19 @@ public class MilwaukeeDataImporter implements CommandLineRunner {
                     }
                 }
 
+                // 5. ბაზაში შენახვა
                 if (description.length() > 5) {
                     product.setDescription(description.toString().trim());
                     productRepository.save(product);
-                    System.out.println("✅ განახლდა: " + product.getName());
+                    System.out.println("✅ დაემატა სპეციფიკაციები: " + product.getName());
                     updated++;
                 } else {
-                    System.out.println("⚠️  description ვერ ამოვიღე: " + product.getName() + " (SKU: " + sku + ")");
+                    System.out.println("⚠️ description ვერ ამოვიღე: " + sku);
                     notFound++;
                 }
 
-                // Milwaukee-ს დაცვა რომ არ დაგვბლოკოს, ცოტა მეტს ველოდებით ყოველ რექვესთზე
-                Thread.sleep(2000);
+                // დაყოვნება, რომ IP არ დაგვიბლოკოს
+                Thread.sleep(1500);
 
             } catch (Exception e) {
                 System.out.println("❌ შეცდომა SKU=" + sku + ": " + e.getMessage());
@@ -154,7 +158,7 @@ public class MilwaukeeDataImporter implements CommandLineRunner {
         }
 
         System.out.println("\n=============================");
-        System.out.println("✅ სულ განახლდა: " + updated + " პროდუქტი");
+        System.out.println("✅ წარმატებით განახლდა: " + updated + " პროდუქტი");
         System.out.println("❌ ვერ მოიძებნა ან ერორი: " + notFound + " პროდუქტი");
         System.out.println("=============================");
     }
