@@ -1,0 +1,8 @@
+{
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "java -jar -Dserver.tomcat.max-swallow-size=100MB -Dspring.servlet.multipart.max-file-size=50MB -Dspring.servlet.multipart.max-request-size=50MB target/store-0.0.1-SNAPSHOT.jar"
+  }
+}
