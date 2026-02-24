@@ -144,10 +144,10 @@
                             </div>
                         </div>
 
-                        <div class="d-flex gap-2 mt-4">
-                            <button type="submit" class="btn btn-success">💾 შენახვა</button>
-                            <a href="/products" class="btn btn-outline-secondary">გაუქმება</a>
-                        </div>
+
+
+                        <button type="submit" class="btn btn-success" onclick="if(document.querySelector('input[type=file]').value === '') { document.querySelector('form').removeAttribute('enctype'); }">💾 შენახვა</button>
+
 
                     </form>
                 </div>
