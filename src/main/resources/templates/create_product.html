@@ -103,15 +103,12 @@
 
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">ტექნოლოგია</label>
-
-                                <!-- თუ შენს entity-ში ველი ჰქვია isBrushless -> შეცვალე th:field="*{isBrushless}" -->
-                                <select th:field="*{brushless}" class="form-select">
+                                <!-- ✅ აქ შევასწორე isBrushless-ზე -->
+                                <select th:field="*{isBrushless}" class="form-select">
                                     <option value="">-- აირჩიე --</option>
                                     <option th:value="true">Brushless (FUEL/Brushless)</option>
                                     <option th:value="false">Brushed (სტანდარტული)</option>
                                 </select>
-
-                                <div class="form-text text-muted">თუ ეს ველი არ გაქვს entity-ში, მითხარი და ამოვიღებთ.</div>
                             </div>
                         </div>
 
@@ -129,12 +126,10 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">სურათის ატვირთვა (ფაილი)</label>
-                            <!-- Controller-ში როგორც გაქვს: @RequestParam(name="imageFile") MultipartFile imageFile -->
                             <input type="file" name="imageFile" class="form-control" accept="image/*">
                             <div class="form-text text-muted">აირჩიე JPG/PNG ფაილი.</div>
                         </div>
 
-                        <!-- თუ რედაქტირებაზე ხარ და imageUrl უკვე დევს, პატარა პრევიუ -->
                         <div class="mb-3" th:if="${product != null && product.imageUrl != null && product.imageUrl != '' && product.imageUrl != 'link'}">
                             <label class="form-label fw-bold">მიმდინარე სურათი</label>
                             <div class="p-2 border rounded bg-white">
