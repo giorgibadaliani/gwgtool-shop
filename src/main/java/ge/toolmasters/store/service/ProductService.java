@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ProductService {
@@ -42,8 +41,6 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    // ProductService.java-ში დაამატე ეს მეთოდი:
-
     // 6. მარაგის შემცირება (შეძენის შემდეგ)
     public void reduceStock(Long productId, int quantity) {
         Product product = productRepository.findById(productId).orElse(null);
@@ -53,8 +50,6 @@ public class ProductService {
             productRepository.save(product);
         }
     }
-
-
 
     // 5. სურათის ატვირთვა (გაერთიანებული ვერსია)
     public String uploadImage(MultipartFile file) throws IOException {
@@ -80,5 +75,11 @@ public class ProductService {
         }
 
         return fileName;
+    }
+
+    // --- ახალი დამატებული მეთოდი კატეგორიებისთვის ---
+    // 7. პროდუქტების ფილტრაცია კატეგორიის მიხედვით
+    public List<Product> getProductsByCategory(Product.Category category) {
+        return productRepository.findByCategory(category);
     }
 }

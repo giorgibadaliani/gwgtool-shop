@@ -8,6 +8,16 @@ import lombok.Data; // Lombok გვეხმარება, მაგრამ
 @Table(name = "products")
 public class Product {
 
+    // 1. ვქმნით კატეგორიების ჩამონათვალს (Enum) პირდაპირ კლასში
+    public enum Category {
+        DRILL,          // დრელები / სახრახნისები
+        ANGLE_GRINDER,  // კუთხსახეხები (ბალგარკები)
+        ROTARY_HAMMER,  // პერფორატორები
+        IMPACT_WRENCH,  // დამრტყმელი ქანჩსახრახნები
+        SAW,            // ხერხები
+        OTHER           // სხვადასხვა (აქსესუარები, ჩანთები და ა.შ.)
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,9 +45,13 @@ public class Product {
 
     private String imageUrl; // სურათის ლინკი
 
+    // 2. ვამატებთ ახალ ველს ბაზისთვის. STRING ნიშნავს, რომ ბაზაში სიტყვებად ჩაიწერება (მაგ: "DRILL") და არა ციფრებად (0, 1)
+    @Enumerated(EnumType.STRING)
+    private Category category;
 
-    // --- ქვემოთ დამატებულია ხელით დაწერილი Getters დაზღვევისთვის ---
-    // ეს ხსნის ყველა "Cannot resolve method 'getName()'" ტიპის ერორს
+
+    // --- ქვემოთ დამატებულია ხელით დაწერილი Getters და Setters დაზღვევისთვის ---
+    // ეს ხსნის ყველა "Cannot resolve method" ტიპის ერორს
 
     public Long getId() {
         return id;
@@ -61,5 +75,14 @@ public class Product {
 
     public void setSku(String sku) {
         this.sku = sku;
+    }
+
+    // 3. კატეგორიის Getter და Setter
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

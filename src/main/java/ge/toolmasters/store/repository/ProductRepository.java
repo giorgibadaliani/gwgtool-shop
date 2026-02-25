@@ -9,11 +9,14 @@ import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
+
     // აქ ხდება: Spring-ი მეთოდის სახელიდან ხვდება რა SQL დაწეროს
-// ეს აუცილებელია!
+    // ეს აუცილებელია!
     Optional<Product> findBySku(String sku);
 
     // იპოვის ყველა პროდუქტს ვოლტაჟის მიხედვით (მაგ: "M18")
     List<Product> findByVoltage(String voltage);
 
+    // --- ახალი დამატებული: იპოვის პროდუქტებს კატეგორიის მიხედვით ---
+    List<Product> findByCategory(Product.Category category);
 }

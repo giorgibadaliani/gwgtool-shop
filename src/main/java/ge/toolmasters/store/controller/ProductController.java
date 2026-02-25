@@ -54,6 +54,28 @@ public class ProductController {
         return "products";
     }
 
+    // --- ეს არის ახალი მეთოდი კატეგორიებისთვის ---
+    @GetMapping("/category/{categoryName}")
+    public String showCategory(@PathVariable("categoryName") String categoryName, Model model) {
+        try {
+            // String-ს ვაქცევთ Enum-ად
+            Product.Category category = Product.Category.valueOf(categoryName.toUpperCase());
+
+            // მოგვაქვს მხოლოდ ამ კატეგორიის პროდუქტები
+            List<Product> products = productService.getProductsByCategory(category);
+
+            model.addAttribute("products", products);
+            model.addAttribute("cartCount", cartService.getItems().size());
+
+            // ვაბრუნებთ იგივე index.html-ს, უბრალოდ ახლა მხოლოდ გაფილტრული პროდუქტები გამოჩნდება
+            return "index";
+        } catch (IllegalArgumentException e) {
+            // თუ ვინმემ არასწორი კატეგორია ჩაწერა URL-ში, მთავარ გვერდზე გადავიყვანოთ
+            return "redirect:/";
+        }
+    }
+
+
     @GetMapping("/products/new")
     public String createProductForm(Model model) {
         model.addAttribute("product", new Product());

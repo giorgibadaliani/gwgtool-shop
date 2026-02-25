@@ -64,16 +64,32 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">მარაგი (ცალი)</label>
-                            <input type="number"
-                                   min="0"
-                                   th:field="*{stockQuantity}"
-                                   class="form-control"
-                                   placeholder="0">
+                        <!-- ✅ ახალი დამატებული: კატეგორიის არჩევა -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-primary">📂 კატეგორია</label>
+                                <select th:field="*{category}" class="form-select border-primary" required>
+                                    <option value="" disabled selected>-- აირჩიეთ კატეგორია --</option>
+                                    <option value="DRILL">დრელები / სახრახნისები</option>
+                                    <option value="ANGLE_GRINDER">კუთხსახეხები (ბალგარკები)</option>
+                                    <option value="ROTARY_HAMMER">პერფორატორები</option>
+                                    <option value="IMPACT_WRENCH">დამრტყმელი ქანჩსახრახნები</option>
+                                    <option value="SAW">ხერხები</option>
+                                    <option value="OTHER">სხვადასხვა (აქსესუარები)</option>
+                                </select>
+                                <div class="form-text text-muted">საიტის მთავარ მენიუში გამოსაჩენად.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">მარაგი (ცალი)</label>
+                                <input type="number"
+                                       min="0"
+                                       th:field="*{stockQuantity}"
+                                       class="form-control"
+                                       placeholder="0">
+                            </div>
                         </div>
 
-                        <!-- ✅ აქ არის მთავარი: მახასიათებლების/აღწერის ველი -->
                         <div class="mb-3">
                             <label class="form-label fw-bold">📋 მახასიათებლები / აღწერა</label>
                             <textarea th:field="*{description}"
@@ -103,7 +119,6 @@
 
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">ტექნოლოგია</label>
-                                <!-- ✅ აქ შევასწორე isBrushless-ზე -->
                                 <select th:field="*{isBrushless}" class="form-select">
                                     <option value="">-- აირჩიე --</option>
                                     <option th:value="true">Brushless (FUEL/Brushless)</option>
@@ -144,10 +159,7 @@
                             </div>
                         </div>
 
-
-
                         <button type="submit" class="btn btn-success" onclick="if(document.querySelector('input[type=file]').value === '') { document.querySelector('form').removeAttribute('enctype'); }">💾 შენახვა</button>
-
 
                     </form>
                 </div>
