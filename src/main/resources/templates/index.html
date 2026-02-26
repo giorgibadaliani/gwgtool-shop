@@ -63,10 +63,12 @@
       <a th:href="@{/}" class="btn btn-outline-dark category-btn">
         <i class="fas fa-list"></i> ყველა
       </a>
-      <a href="/category/DRILL" class="btn btn-outline-danger m-1 category-btn">
-        <img src="/images/drill-icon.png" alt="დრელები" style="width: 24px; height: 24px; margin-right: 8px; vertical-align: middle;">
+      <a th:href="@{/category/DRILL}" class="btn btn-outline-danger m-1 category-btn rounded-pill px-3 py-2">
+        <!-- აქ შევცვალეთ th:src-ით -->
+        <img th:src="@{/images/drill-icon.png}" alt="დრელები" style="width: 20px; height: 20px; margin-right: 6px; object-fit: contain;">
         დრელები / სახრახნისები
       </a>
+
 
       <a th:href="@{/category/ANGLE_GRINDER}" class="btn btn-outline-dark category-btn">
         <i class="fas fa-cog"></i> ბალგარკები
