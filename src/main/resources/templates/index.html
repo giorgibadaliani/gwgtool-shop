@@ -61,7 +61,7 @@
   <div class="container">
     <div class="d-flex justify-content-center flex-wrap gap-2">
       <a th:href="@{/}" class="btn btn-outline-dark category-btn">
-        <i class="fas fa-list"></i> ყველა
+        <i class="btn btn-outline-danger m-1 category-btn rounded-pill px-3 py-2"></i> ყველა
       </a>
 
       <a th:href="@{/category/DRILL}" class="btn btn-outline-danger m-1 category-btn rounded-pill px-3 py-2">
@@ -77,15 +77,26 @@
         ბალგარკები
       </a>
 
-      <a th:href="@{/category/ROTARY_HAMMER}" class="btn btn-outline-dark category-btn">
-        <i class="fas fa-hammer"></i> პერფორატორები
+      <a th:href="@{/category/ROTARY_HAMMER}" class="btn btn-outline-dark category-btn rounded-pill px-3 py-2 ">
+        <img th:src="@{/images/perforator.png}" alt="ფერფორატორები"
+             style="width: 50px; height: 50px; margin-right: 12px; object-fit: contain; mix-blend-mode: multiply;">
+        ფერფორატორები
       </a>
-      <a th:href="@{/category/IMPACT_WRENCH}" class="btn btn-outline-dark category-btn">
-        <i class="fas fa-wrench"></i> ქანჩსახრახნები
+
+      <a th:href="@{/category/IMPACT_WRENCH}" class="btn btn-outline-dark category-btn rounded-pill px-3 py-2">
+        <img th:src="@{/images/impact.png}" alt="კანჭსახრახნები"
+             style="width: 50px; height: 50px; margin-right: 12px; object-fit: contain; mix-blend-mode: multiply;">
+        კანჭსახრახნები
       </a>
-      <a th:href="@{/category/SAW}" class="btn btn-outline-dark category-btn">
-        <i class="fas fa-cut"></i> ხერხები
+
+      <a th:href="@{/category/SAW}" class="btn btn-outline-dark category-btn rounded-pill px-3 py-2 ">
+        <img th:src="@{/images/angle.png}" alt="ხერხები"
+             style="width: 50px; height: 50px; margin-right: 12px; object-fit: contain; mix-blend-mode: multiply;">
+        ხერხები
       </a>
+
+
+
     </div>
   </div>
 </div>
