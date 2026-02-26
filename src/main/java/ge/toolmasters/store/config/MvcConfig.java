@@ -11,12 +11,13 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // ვპოულობთ uploads საქაღალდეს ჩვენს პროექტში
         Path uploadDir = Paths.get("uploads");
         String uploadPath = uploadDir.toFile().getAbsolutePath();
 
-        // ვქმნით "ვირტუალურ გზას": /images/** -> რეალური ფაილები
-        registry.addResourceHandler("/images/**")
+        // 1. პროდუქტის ატვირთული სურათებისთვის ვქმნით ახალ გზას: /uploads/**
+        registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:/" + uploadPath + "/");
+
+        // (ხოლო /images/** უკვე ავტომატურად იმუშავებს static/images-დან)
     }
 }
