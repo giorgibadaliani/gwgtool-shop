@@ -17,8 +17,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // ვთიშავთ CSRF-ს, რომ POST მოთხოვნებმა (კალათაში დამატება, შეკვეთა) იმუშავოს
+                .csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/product/**", "/cart/**", "/checkout/**",
+                        // დავამატე /category/** აქ
+                        .requestMatchers("/", "/product/**", "/category/**", "/cart/**", "/checkout/**",
                                 "/order-success", "/images/**", "/css/**",
                                 "/uploads/**", "/sitemap.xml", "/robots.txt").permitAll()
                         .anyRequest().authenticated()
