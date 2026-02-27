@@ -14,7 +14,9 @@ public class Product {
         ANGLE_GRINDER,  // კუთხსახეხები (ბალგარკები)
         ROTARY_HAMMER,  // პერფორატორები
         IMPACT_WRENCH,  // დამრტყმელი ქანჩსახრახნები
-        SAW,            // ხერხები
+        SAW,
+        NAIL_GUN,// ხერხები
+        BATTERY,
         OTHER           // სხვადასხვა (აქსესუარები, ჩანთები და ა.შ.)
     }
 
