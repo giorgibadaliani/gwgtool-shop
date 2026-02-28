@@ -16,44 +16,45 @@
                 </div>
                 <div class="card-body">
 
-                    <!-- 🚨 ფორმა მიმართულია /products/save-კენ 🚨 -->
-                    <form th:action="@{/products/save}" th:object="${product}" method="post" enctype="multipart/form-data">
+                    <form th:action="@{/products/save}" method="post" enctype="multipart/form-data">
 
-                        <!-- 🚨 აუცილებელია რედაქტირებისთვის 🚨 -->
-                        <input type="hidden" th:field="*{id}" />
+                        <!-- ID რედაქტირებისთვის -->
+                        <input type="hidden" name="id" th:value="${product.id}" />
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">დასახელება</label>
-                                <input type="text" th:field="*{name}" class="form-control" required placeholder="მაგ: Milwaukee M18 Drill">
+                                <input type="text" name="name" th:value="${product.name}" class="form-control" required placeholder="მაგ: Milwaukee M18 Drill">
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">SKU კოდი</label>
-                                <input type="text" th:field="*{sku}" class="form-control" placeholder="მაგ: 4933464516">
+                                <input type="text" name="sku" th:value="${product.sku}" class="form-control" placeholder="მაგ: 4933464516">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">ფასი (₾)</label>
-                                <input type="number" step="0.01" th:field="*{price}" class="form-control" required>
+                                <input type="number" step="0.01" name="price" th:value="${product.price}" class="form-control" required>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">მარაგი (ცალი)</label>
-                                <input type="number" th:field="*{stockQuantity}" class="form-control">
+                                <input type="number" name="stockQuantity" th:value="${product.stockQuantity}" class="form-control">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">კატეგორია</label>
-                                <select th:field="*{category}" class="form-select" required>
+                                <select name="category" class="form-select" required>
                                     <option value="">-- აირჩიე --</option>
-                                    <option th:each="cat : ${T(ge.toolmasters.store.entity.Category).values()}"
+                                    <!-- ჩამოვთვლით კატეგორიებს და მოვნიშნავთ არჩეულს (თუ რედაქტირებაა) -->
+                                    <option th:each="cat : ${T(ge.toolmasters.store.entity.Product.Category).values()}"
                                             th:value="${cat}"
-                                            th:text="${cat}"></option>
+                                            th:text="${cat}"
+                                            th:selected="${product.category == cat}"></option>
                                 </select>
                             </div>
 
@@ -65,7 +66,7 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">პროდუქტის მახასიათებლები (აღწერა)</label>
-                            <textarea th:field="*{description}" class="form-control" rows="5" placeholder="ჩაწერეთ ტექნიკური მახასიათებლები..."></textarea>
+                            <textarea name="description" th:text="${product.description}" class="form-control" rows="5" placeholder="ჩაწერეთ ტექნიკური მახასიათებლები..."></textarea>
                         </div>
 
                         <div class="d-flex gap-2 mt-4">
