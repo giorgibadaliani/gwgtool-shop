@@ -79,28 +79,40 @@ public class ProductController {
     @GetMapping("/products/new")
     public String createProductForm(Model model) {
         model.addAttribute("product", new Product());
-        return "create_product";
+        return "create_product"; // ან product-form (გააჩნია HTML-ს რა ჰქვია)
     }
 
-    @PostMapping("/products")
+    // 🚨 შეცვლილი შენახვის ლოგიკა 🚨
+    @PostMapping("/products/add") // ამოწმებს შენი HTML-ის action-ს
     public String saveProduct(
             @ModelAttribute("product") Product product,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
 
         try {
-            // ვამოწმებთ სურათი მოვიდა თუ არა
-            if (imageFile != null && !imageFile.isEmpty()) {
-                String fileName = productService.uploadImage(imageFile);
-                product.setImageUrl(fileName);
-            } else if (product.getId() != null) {
-                // თუ ვარედაქტირებთ და ახალი სურათი არ აგვიტვირთავს, ძველი შევინარჩუნოთ
+            // თუ პროდუქტი უკვე არსებობს (რედაქტირებაა)
+            if (product.getId() != null) {
                 Product existingProduct = productService.getProductById(product.getId());
                 if (existingProduct != null) {
-                    product.setImageUrl(existingProduct.getImageUrl());
+                    // თუ ახალი სურათი არ აუტვირთავს, ვუტოვებთ ძველს
+                    if (imageFile == null || imageFile.isEmpty()) {
+                        product.setImageUrl(existingProduct.getImageUrl());
+                    }
+
+                    // ვრწმუნდებით, რომ სხვა ველები (SKU, აღწერა) არ დაიკარგება რედაქტირებისას
+                    if (product.getSku() == null) product.setSku(existingProduct.getSku());
+                    if (product.getDescription() == null) product.setDescription(existingProduct.getDescription());
                 }
             }
 
+            // თუ ახალი სურათი ატვირთა, ვინახავთ
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String fileName = productService.uploadImage(imageFile);
+                product.setImageUrl(fileName);
+            }
+
+            // 💾 ახლა უკვე პროდუქტს (თავისი ახალი კატეგორიით) ვინახავთ!
             productService.saveProduct(product);
+
             return "redirect:/products";
         } catch (Exception e) {
             e.printStackTrace();
@@ -112,7 +124,7 @@ public class ProductController {
     public String editProductForm(@PathVariable Long id, Model model) {
         Product product = productService.getProductById(id);
         model.addAttribute("product", product);
-        return "create_product";
+        return "create_product"; // ან product-form
     }
 
     @GetMapping("/products/delete/{id}")
