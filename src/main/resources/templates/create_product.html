@@ -7,173 +7,84 @@
 </head>
 <body class="bg-light">
 
-<nav class="navbar navbar-dark bg-dark mb-4 sticky-top">
-    <div class="container d-flex justify-content-between">
-        <a class="navbar-brand fw-bold" href="/">GWG-TOOLS Admin</a>
-        <a href="/products" class="btn btn-outline-light btn-sm">პროდუქტები</a>
-    </div>
-</nav>
-
-<div class="container mt-4 mb-5">
+<div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-9 col-lg-8">
-            <div class="card shadow border-0">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"
-                        th:text="${product != null && product.id != null} ? '✏️ პროდუქტის რედაქტირება' : '🛠️ ახალი პროდუქტის დამატება'">
-                        🛠️ ახალი პროდუქტის დამატება
-                    </h4>
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">🛠️ პროდუქტის მართვა</h4>
                 </div>
-
                 <div class="card-body">
-                    <form th:action="@{/products}"
-                          th:object="${product}"
-                          method="post"
-                          enctype="multipart/form-data">
 
-                        <input type="hidden" th:field="*{id}">
+                    <!-- 🚨 ფორმა მიმართულია /products/save-კენ 🚨 -->
+                    <form th:action="@{/products/save}" th:object="${product}" method="post" enctype="multipart/form-data">
 
-                        <h6 class="text-muted mb-3">📋 ძირითადი ინფორმაცია</h6>
+                        <!-- 🚨 აუცილებელია რედაქტირებისთვის 🚨 -->
+                        <input type="hidden" th:field="*{id}" />
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">დასახელება</label>
-                            <input type="text"
-                                   th:field="*{name}"
-                                   class="form-control"
-                                   required
-                                   placeholder="მაგ: M18 FUEL Percussion Drill">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">დასახელება</label>
+                                <input type="text" th:field="*{name}" class="form-control" required placeholder="მაგ: Milwaukee M18 Drill">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">SKU კოდი</label>
+                                <input type="text" th:field="*{sku}" class="form-control" placeholder="მაგ: 4933464516">
+                            </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">ფასი (₾)</label>
-                                <input type="number"
-                                       step="0.01"
-                                       min="0"
-                                       th:field="*{price}"
-                                       class="form-control"
-                                       required
-                                       placeholder="0.00">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">SKU (კოდი)</label>
-                                <input type="text"
-                                       th:field="*{sku}"
-                                       class="form-control"
-                                       placeholder="მაგ: 4933479859">
-                            </div>
-                        </div>
-
-                        <!-- ✅ ახალი დამატებული: კატეგორიის არჩევა -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-primary">📂 კატეგორია</label>
-                                <select th:field="*{category}" class="form-select border-primary" required>
-                                    <option value="" disabled selected>-- აირჩიეთ კატეგორია --</option>
-                                    <option value="DRILL">დრელები / სახრახნისები</option>
-                                    <option value="ANGLE_GRINDER">კუთხსახეხები (ბალგარკები)</option>
-                                    <option value="ROTARY_HAMMER">პერფორატორები</option>
-                                    <option value="IMPACT_WRENCH">დამრტყმელი ქანჩსახრახნები</option>
-                                    <option value="SAW">ხერხები</option>
-                                    <option value="NAIL_GUN">ნეილგანები(ჩამჭედები)</option>
-                                    <option value="BATTERY">ბატარეები-დამტენები</option>
-                                    <option value="OTHER">სხვადასხვა (აქსესუარები)</option>
-                                </select>
-                                <div class="form-text text-muted">საიტის მთავარ მენიუში გამოსაჩენად.</div>
+                                <input type="number" step="0.01" th:field="*{price}" class="form-control" required>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">მარაგი (ცალი)</label>
-                                <input type="number"
-                                       min="0"
-                                       th:field="*{stockQuantity}"
-                                       class="form-control"
-                                       placeholder="0">
+                                <input type="number" th:field="*{stockQuantity}" class="form-control">
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">📋 მახასიათებლები / აღწერა</label>
-                            <textarea th:field="*{description}"
-                                      class="form-control"
-                                      rows="10"
-                                      placeholder="მაგალითად:
-ბატარეის ძაბვა: 18.0 ვ
-ბრუნვის მომენტი, მაქს: 1600 ნმ
-სიჩქარე დატვირთვის გარეშე: 0-1750 ბრ/წთ"></textarea>
-                            <div class="form-text text-muted">თითოეული მახასიათებელი დაწერე ახალ ხაზზე.</div>
-                        </div>
-
-                        <hr>
-                        <h6 class="text-muted mb-3">⚡ ტექნიკური სპეციფიკაციები</h6>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">სისტემა (Voltage)</label>
-                                <select th:field="*{voltage}" class="form-select">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">კატეგორია</label>
+                                <select th:field="*{category}" class="form-select" required>
                                     <option value="">-- აირჩიე --</option>
-                                    <option value="M12">M12 (12V)</option>
-                                    <option value="M18">M18 (18V)</option>
-                                    <option value="MX FUEL">MX FUEL</option>
-                                    <option value="230V">230V (ქსელი)</option>
+                                    <option th:each="cat : ${T(ge.toolmasters.store.entity.Category).values()}"
+                                            th:value="${cat}"
+                                            th:text="${cat}"></option>
                                 </select>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">ტექნოლოგია</label>
-                                <select th:field="*{isBrushless}" class="form-select">
-                                    <option value="">-- აირჩიე --</option>
-                                    <option th:value="true">Brushless (FUEL/Brushless)</option>
-                                    <option th:value="false">Brushed (სტანდარტული)</option>
-                                </select>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">სურათის ატვირთვა</label>
+                                <input type="file" name="imageFile" class="form-control" accept="image/*">
                             </div>
                         </div>
 
-                        <hr>
-                        <h6 class="text-muted mb-3">🖼️ სურათი</h6>
-
                         <div class="mb-3">
-                            <label class="form-label fw-bold">სურათის ლინკი (imageUrl)</label>
-                            <input type="text"
-                                   th:field="*{imageUrl}"
-                                   class="form-control"
-                                   placeholder="https://... ან დატოვე ცარიელი">
-                            <div class="form-text text-muted">თუ ლინკს ჩასვამ, ატვირთული ფაილი საჭირო არ არის.</div>
+                            <label class="form-label fw-bold">პროდუქტის მახასიათებლები (აღწერა)</label>
+                            <textarea th:field="*{description}" class="form-control" rows="5" placeholder="ჩაწერეთ ტექნიკური მახასიათებლები..."></textarea>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">სურათის ატვირთვა (ფაილი)</label>
-                            <input type="file" name="imageFile" class="form-control" accept="image/*">
-                            <div class="form-text text-muted">აირჩიე JPG/PNG ფაილი.</div>
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-success w-50">💾 შენახვა</button>
+                            <a href="/products" class="btn btn-outline-secondary w-50">გაუქმება</a>
                         </div>
-
-                        <div class="mb-3" th:if="${product != null && product.imageUrl != null && product.imageUrl != '' && product.imageUrl != 'link'}">
-                            <label class="form-label fw-bold">მიმდინარე სურათი</label>
-                            <div class="p-2 border rounded bg-white">
-                                <img th:if="${#strings.startsWith(product.imageUrl, 'http')}"
-                                     th:src="${product.imageUrl}"
-                                     style="max-height: 140px; object-fit: contain;"
-                                     alt="Current image">
-                                <img th:if="${!#strings.startsWith(product.imageUrl, 'http')}"
-                                     th:src="@{'/images/' + ${product.imageUrl}}"
-                                     style="max-height: 140px; object-fit: contain;"
-                                     alt="Current image">
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-success" onclick="if(document.querySelector('input[type=file]').value === '') { document.querySelector('form').removeAttribute('enctype'); }">💾 შენახვა</button>
 
                     </form>
                 </div>
-
             </div>
 
-            <div class="text-center text-muted mt-4">
+            <div class="text-center text-muted mt-3">
                 <small>&copy; 2026 ToolMasters Admin Panel</small>
             </div>
+
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
