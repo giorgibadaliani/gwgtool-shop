@@ -75,38 +75,51 @@ public class ProductController {
         return "create_product";
     }
 
-    // 🚨 ზუსტი მისამართი შენახვისთვის 🚨
     @PostMapping("/products/save")
     public String saveProduct(
             @ModelAttribute("product") Product product,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
 
         try {
-            // თუ ვარედაქტირებთ არსებულს
+            // 1. თუ პროდუქტი უკვე არსებობს (რედაქტირებაა)
             if (product.getId() != null) {
                 Product existingProduct = productService.getProductById(product.getId());
                 if (existingProduct != null) {
-                    if (imageFile == null || imageFile.isEmpty()) {
+
+                    // თუ SKU და Description ცარიელია, ძველი შევინარჩუნოთ
+                    if (product.getSku() == null) product.setSku(existingProduct.getSku());
+                    if (product.getDescription() == null || product.getDescription().isEmpty()) {
+                        product.setDescription(existingProduct.getDescription());
+                    }
+
+                    // 🚨 სურათის ლოგიკა:
+                    // თუ მომხმარებელმა ახალი ფაილი არ ატვირთა და არც ახალი ლინკი ჩაწერა
+                    // (ანუ ფორმიდან მოსული imageUrl ცარიელია), მაშინ დავუტოვოთ ძველი სურათი.
+                    if ((imageFile == null || imageFile.isEmpty()) &&
+                            (product.getImageUrl() == null || product.getImageUrl().isEmpty())) {
                         product.setImageUrl(existingProduct.getImageUrl());
                     }
-                    if (product.getSku() == null) product.setSku(existingProduct.getSku());
-                    if (product.getDescription() == null) product.setDescription(existingProduct.getDescription());
                 }
             }
 
-            // ახალი სურათის ატვირთვა
+            // 2. თუ ახალი ფაილი ატვირთა, ის ყოველთვის "მოიგებს" და გადააწერს ლინკს
             if (imageFile != null && !imageFile.isEmpty()) {
                 String fileName = productService.uploadImage(imageFile);
                 product.setImageUrl(fileName);
             }
+            // 3. თუ ფაილი არ აუტვირთავს, მაგრამ ლინკი ჩააგდო ტექსტურ ველში,
+            // product.getImageUrl() უკვე შეიცავს მაგ ლინკს (რადგან @ModelAttribute-მა თავისით ჩასვა)
+            // და პირდაპირ ეგ შეინახება!
 
             productService.saveProduct(product);
             return "redirect:/products";
+
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/products?error";
         }
     }
+
 
     @GetMapping("/products/edit/{id}")
     public String editProductForm(@PathVariable Long id, Model model) {
