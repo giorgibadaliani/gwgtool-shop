@@ -17,6 +17,9 @@ public class Product {
         SAW,// ხერხები
         NAIL_GUN,
         BATTERY,
+        MEASURING_TOOLS,
+        SAFETY_GEAR,
+        ACCESSORIES,
         OTHER           // სხვადასხვა (აქსესუარები, ჩანთები და ა.შ.)
     }
 
