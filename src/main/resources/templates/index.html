@@ -169,7 +169,7 @@
 
         <!-- 2. ატვირთული სურათი -->
         <img th:if="${product.imageUrl != null and !#strings.startsWith(product.imageUrl, 'http') and product.imageUrl != 'link' and product.imageUrl != ''}"
-             th:src="@{'/images/' + ${product.imageUrl}}"
+             th:src="@{'/uploads/' + ${product.imageUrl}}"
              class="card-img-top" alt="Local Image">
 
         <!-- 3. ლოგო (სურათი არ არის) -->

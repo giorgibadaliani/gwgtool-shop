@@ -26,7 +26,7 @@
       <img th:if="${product.imageUrl != null and #strings.startsWith(product.imageUrl, 'http')}"
            th:src="${product.imageUrl}" class="img-fluid rounded shadow-sm" style="max-height: 500px;" alt="Product Image">
       <img th:if="${product.imageUrl != null and !#strings.startsWith(product.imageUrl, 'http') and product.imageUrl != 'link' and product.imageUrl != ''}"
-           th:src="@{'/images/' + ${product.imageUrl}}" class="img-fluid rounded shadow-sm" style="max-height: 500px;" alt="Product Image">
+           th:src="@{'/uploads/' + ${product.imageUrl}}" class="img-fluid rounded shadow-sm" style="max-height: 500px;" alt="Product Image">
       <img th:if="${product.imageUrl == null or product.imageUrl == 'link' or product.imageUrl == ''}"
            th:src="@{/uploads/logo.png}" class="img-fluid rounded shadow-sm" style="max-height: 500px;" alt="Default Logo">
     </div>
