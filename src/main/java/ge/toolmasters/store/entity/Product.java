@@ -19,7 +19,7 @@ public class Product {
         BATTERY,
         MEASURING_TOOLS,
         SAFETY_GEAR,
-        ACCESSORIES,
+        LIGHTING,
         OTHER           // სხვადასხვა (აქსესუარები, ჩანთები და ა.შ.)
     }
 
