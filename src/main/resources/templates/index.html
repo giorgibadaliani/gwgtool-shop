@@ -61,47 +61,61 @@
   </div>
 </nav>
 
-<!-- კატეგორიების ბარი -->
+<!-- კატეგორიების ბარი (სრულად აღდგენილი) -->
 <div class="bg-white shadow-sm mb-4 border-bottom py-3">
   <div class="container">
     <div class="d-flex justify-content-center flex-wrap gap-2">
-      <!-- ღილაკი "ყველა" -->
       <a th:href="@{/}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
         <span style="font-size: 1.5rem; margin-right: 8px;">📋</span>ყველა
       </a>
-      <!-- ღილაკი "დრელები" -->
       <a th:href="@{/?category=DRILL}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'DRILL'} ? 'active bg-danger text-white border-danger' : ''">
         <img th:src="@{/images/drill.png}" alt="დრელები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
-        დრელები
+        დრელები / სახრახნისები
       </a>
-      <!-- ღილაკი "ბალგარკები" -->
       <a th:href="@{/?category=ANGLE_GRINDER}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'ANGLE_GRINDER'} ? 'active bg-danger text-white border-danger' : ''">
         <img th:src="@{/images/AngelGrinder.png}" alt="ბალგარკები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
         ბალგარკები
       </a>
-      <!-- ღილაკი "პერფორატორები" -->
       <a th:href="@{/?category=ROTARY_HAMMER}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'ROTARY_HAMMER'} ? 'active bg-danger text-white border-danger' : ''">
         <img th:src="@{/images/peferator.png}" alt="პერფორატორები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
         პერფორატორები
       </a>
-      <!-- ღილაკი "ქანჩსახრახნები" -->
       <a th:href="@{/?category=IMPACT_WRENCH}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'IMPACT_WRENCH'} ? 'active bg-danger text-white border-danger' : ''">
         <img th:src="@{/images/impact.png}" alt="ქანჩსახრახნები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
         ქანჩსახრახნები
       </a>
-      <!-- ღილაკი "ხერხები" -->
       <a th:href="@{/?category=SAW}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'SAW'} ? 'active bg-danger text-white border-danger' : ''">
         <img th:src="@{/images/angle.png}" alt="ხერხები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
         ხერხები
       </a>
-      <!-- ახალი: ღილაკი "ბატარეები" -->
+      <a th:href="@{/?category=NAIL_GUN}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'NAIL_GUN'} ? 'active bg-danger text-white border-danger' : ''">
+        <img th:src="@{/images/nailgun.png}" alt="ნეილგანები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
+        ნეილგანები
+      </a>
       <a th:href="@{/?category=BATTERY}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'BATTERY'} ? 'active bg-danger text-white border-danger' : ''">
         <img th:src="@{/images/battery.png}" alt="ბატარეები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
         ბატარეები
       </a>
+      <a th:href="@{/?category=MEASURING_TOOLS}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'MEASURING_TOOLS'} ? 'active bg-danger text-white border-danger' : ''">
+        <img th:src="@{/images/tape_measure.png}" alt="საზომები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
+        საზომები
+      </a>
+      <a th:href="@{/?category=LIGHTING}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'LIGHTING'} ? 'active bg-danger text-white border-danger' : ''">
+        <img th:src="@{/images/light.png}" alt="განათება" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
+        განათება
+      </a>
+      <a th:href="@{/?category=TOOL_ACCESSORIES}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'TOOL_ACCESSORIES'} ? 'active bg-danger text-white border-danger' : ''">
+        <img th:src="@{/images/TOOL_ACCESSORIES.png}" alt="აქსესუარები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
+        აქსესუარები
+      </a>
+      <a th:href="@{/?category=SAFETY_GEAR}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'SAFETY_GEAR'} ? 'active bg-danger text-white border-danger' : ''">
+        <img th:src="@{/images/safety.png}" alt="დაცვა" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
+        დაცვა
+      </a>
     </div>
   </div>
 </div>
+
 
 <div class="container my-4">
   <div class="row">
