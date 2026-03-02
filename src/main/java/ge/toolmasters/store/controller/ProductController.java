@@ -9,7 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
+
 import java.util.List;
 
 @Controller
@@ -25,7 +25,6 @@ public class ProductController {
         this.characteristicRepo = characteristicRepo;
     }
 
-    // 🚨 შეცვლილი მთავარი მეთოდი: ახლა იღებს ფილტრებს!
     @GetMapping("/")
     public String showShop(
             @RequestParam(required = false) String category,
@@ -36,25 +35,20 @@ public class ProductController {
             @RequestParam(required = false) Boolean isToolOnly,
             Model model) {
 
-        // კატეგორიის სტრინგის გადაყვანა Enum-ში თუ მოწოდებულია
         Product.Category catEnum = null;
         if (category != null && !category.isEmpty()) {
             try {
                 catEnum = Product.Category.valueOf(category.toUpperCase());
             } catch (IllegalArgumentException e) {
-                // თუ არასწორი კატეგორია ჩაწერეს URL-ში, უბრალოდ იგნორირებას ვუკეთებთ
             }
         }
 
-        // ვიძახებთ ჩვენს ახალ ჭკვიან ფილტრს
         List<Product> products = productService.filterProducts(
                 catEnum, minPrice, maxPrice, voltage, isBrushless, isToolOnly
         );
 
         model.addAttribute("products", products);
         model.addAttribute("cartCount", cartService.getItems().size());
-
-        // ვაგზავნით არჩეულ ფილტრებს უკან HTML-ში, რომ მონიშნული დარჩეს სლაიდერები და ჩექბოქსები
         model.addAttribute("selectedCategory", category);
         model.addAttribute("minPrice", minPrice);
         model.addAttribute("maxPrice", maxPrice);
@@ -86,7 +80,6 @@ public class ProductController {
         return "products";
     }
 
-    // ეს მეთოდი დავტოვე ძველი ბმულებისთვის, მაგრამ ისიც ჩვენს ახალ ფილტრს გამოიყენებს
     @GetMapping("/category/{categoryName}")
     public String showCategory(@PathVariable("categoryName") String categoryName, Model model) {
         return showShop(categoryName, null, null, null, null, null, model);
@@ -98,16 +91,27 @@ public class ProductController {
         return "create_product";
     }
 
+    // 🌟 დაზღვეული შენახვის მეთოდი (იცავს 500 ერორისგან)
     @PostMapping("/products/save")
     public String saveProduct(
             @ModelAttribute("product") Product product,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
 
         try {
+            // ცარიელი მნიშვნელობების დაცვა, რომ ბაზა არ გაიქრაშოს
+            if (product.getDiscountPercentage() != null && product.getDiscountPercentage() <= 0) {
+                product.setDiscountPercentage(null);
+            }
+            if (product.getVoltage() != null && product.getVoltage().trim().isEmpty()) {
+                product.setVoltage(null);
+            }
+
             if (product.getId() != null) {
                 Product existingProduct = productService.getProductById(product.getId());
                 if (existingProduct != null) {
-                    if (product.getSku() == null) product.setSku(existingProduct.getSku());
+                    if (product.getSku() == null || product.getSku().isEmpty()) {
+                        product.setSku(existingProduct.getSku());
+                    }
                     if (product.getDescription() == null || product.getDescription().isEmpty()) {
                         product.setDescription(existingProduct.getDescription());
                     }
@@ -128,10 +132,9 @@ public class ProductController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "redirect:/products?error";
+            return "redirect:/products?error=true";
         }
     }
-
 
     @GetMapping("/products/edit/{id}")
     public String editProductForm(@PathVariable Long id, Model model) {
