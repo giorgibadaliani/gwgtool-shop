@@ -72,8 +72,9 @@
                                     <img th:if="${#strings.startsWith(product.imageUrl, 'http')}"
                                          th:src="${product.imageUrl}" width="80" height="80" style="object-fit: cover;" class="border rounded">
 
+                                    <!-- ✅ გასწორებული /uploads/ გზა -->
                                     <img th:unless="${#strings.startsWith(product.imageUrl, 'http')}"
-                                         th:src="@{'/images/' + ${product.imageUrl}}" width="80" height="80" style="object-fit: cover;" class="border rounded">
+                                         th:src="@{'/uploads/' + ${product.imageUrl}}" width="80" height="80" style="object-fit: cover;" class="border rounded">
                                 </div>
 
                                 <div class="flex-grow-1">
@@ -86,7 +87,7 @@
                                     <!-- ვარიანტი 2: ფაილის ატვირთვა -->
                                     <div>
                                         <label class="form-label fw-bold small">ვარიანტი 2: ატვირთე ფაილი კომპიუტერიდან</label>
-                                        <input type="file" name="imageFile" class="form-control form-control-sm" accept="uploads/*">
+                                        <input type="file" name="imageFile" class="form-control form-control-sm" accept="image/*">
                                         <small class="text-muted" style="font-size: 0.75rem;">(ახალი ფაილის ატვირთვა წაშლის ძველ ლინკს)</small>
                                     </div>
                                 </div>
