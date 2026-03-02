@@ -12,12 +12,18 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // ეს იღებს შენი პროექტის ძირში არსებულ "uploads" ფოლდერის ზუსტ მისამართს
         Path uploadDir = Paths.get("uploads");
         String uploadPath = uploadDir.toFile().getAbsolutePath();
 
-        // ბრაუზერს ვეუბნებით: თუ მოგთხოვენ /uploads/ragaca.jpg, მოძებნე ის ჩვენს ფიზიკურ ფოლდერში!
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:/" + uploadPath + "/");
+        // 🚨 Linux/Railway თავსებადობის შესწორება 🚨
+        if (uploadDir.toFile().isDirectory()) {
+            registry.addResourceHandler("/uploads/**")
+                    .addResourceLocations("file:" + uploadPath + "/");
+        } else {
+            // თუ uploads ფოლდერი არ არსებობს (მაგ: ახალი გაშვება Railway-ზე),
+            // რომ ერორი არ ამოაგდოს
+            registry.addResourceHandler("/uploads/**")
+                    .addResourceLocations("file:uploads/");
+        }
     }
 }
