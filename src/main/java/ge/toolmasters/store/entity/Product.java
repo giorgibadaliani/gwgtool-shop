@@ -1,7 +1,7 @@
 package ge.toolmasters.store.entity;
 
 import jakarta.persistence.*;
-import lombok.Data; // Lombok გვეხმარება, მაგრამ აუცილებელ მეთოდებს მაინც ხელით ვწერთ დაზღვევისთვის
+import lombok.Data;
 
 @Entity
 @Data
@@ -14,7 +14,7 @@ public class Product {
         ANGLE_GRINDER,  // კუთხსახეხები (ბალგარკები)
         ROTARY_HAMMER,  // პერფორატორები
         IMPACT_WRENCH,  // დამრტყმელი ქანჩსახრახნები
-        SAW,// ხერხები
+        SAW,            // ხერხები
         NAIL_GUN,
         BATTERY,
         MEASURING_TOOLS,
@@ -50,6 +50,9 @@ public class Product {
     private Boolean isToolOnly; // true = ელემენტის გარეშე, false = კიტი (Kit)
 
     private String imageUrl; // სურათის ლინკი
+
+    // 🌟 დამატებული ველი: ფასდაკლების პროცენტი (აქციისთვის)
+    private Integer discountPercentage;
 
     // 2. ვამატებთ ახალ ველს ბაზისთვის. STRING ნიშნავს, რომ ბაზაში სიტყვებად ჩაიწერება (მაგ: "DRILL") და არა ციფრებად (0, 1)
     @Enumerated(EnumType.STRING)
@@ -90,5 +93,23 @@ public class Product {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    // 🌟 აქციის პროცენტის Getter და Setter
+    public Integer getDiscountPercentage() {
+        return discountPercentage;
+    }
+
+    public void setDiscountPercentage(Integer discountPercentage) {
+        this.discountPercentage = discountPercentage;
+    }
+
+    // 🌟 ჭკვიანი მეთოდი, რომელიც ავტომატურად ითვლის ფასდაკლებულ თანხას!
+    // (გამოიძახება HTML-დან: ${product.getDiscountedPrice()})
+    public Double getDiscountedPrice() {
+        if (discountPercentage == null || discountPercentage <= 0) {
+            return price;
+        }
+        return price - (price * discountPercentage / 100.0);
     }
 }

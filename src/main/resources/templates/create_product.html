@@ -48,7 +48,6 @@
                                 <label class="form-label fw-bold">კატეგორია</label>
                                 <select name="category" class="form-select" required>
                                     <option value="">-- აირჩიე --</option>
-                                    <!-- ჩამოვთვლით კატეგორიებს და მოვნიშნავთ არჩეულს (თუ რედაქტირებაა) -->
                                     <option th:each="cat : ${T(ge.toolmasters.store.entity.Product.Category).values()}"
                                             th:value="${cat}"
                                             th:text="${cat}"
@@ -57,41 +56,68 @@
                             </div>
                         </div>
 
-                        <!-- 🚨 სურათების ახალი სექცია 🚨 -->
+                        <!-- 🌟 ახალი ბლოკი: ტექნიკური მახასიათებლები და ფასდაკლება 🌟 -->
+                        <div class="card border-danger mb-4">
+                            <div class="card-header bg-danger text-white fw-bold">⚙️ ტექნიკური დეტალები და აქცია</div>
+                            <div class="card-body row">
+
+                                <!-- ძრავის ტიპი -->
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label small fw-semibold">ძრავის ტიპი</label>
+                                    <select name="isBrushless" class="form-select">
+                                        <option value="">აირჩიეთ...</option>
+                                        <option value="true" th:selected="${product.isBrushless == true}">უნახშირო (Brushless)</option>
+                                        <option value="false" th:selected="${product.isBrushless == false}">ნახშირით (Brushed)</option>
+                                    </select>
+                                </div>
+
+                                <!-- კვების წყარო -->
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label small fw-semibold">კვების წყარო</label>
+                                    <select name="voltage" class="form-select">
+                                        <option value="">აირჩიეთ...</option>
+                                        <option value="M12" th:selected="${product.voltage == 'M12'}">M12</option>
+                                        <option value="M18" th:selected="${product.voltage == 'M18'}">M18</option>
+                                        <option value="230V" th:selected="${product.voltage == '230V'}">230V (დენზე)</option>
+                                        <option value="MX FUEL" th:selected="${product.voltage == 'MX FUEL'}">MX FUEL</option>
+                                    </select>
+                                </div>
+
+                                <!-- აქციის პროცენტი -->
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label small fw-bold text-danger">ფასდაკლება (%)</label>
+                                    <input type="number" name="discountPercentage" th:value="${product.discountPercentage}" class="form-control border-danger" min="0" max="99" placeholder="მაგ: 10">
+                                    <small class="text-muted" style="font-size: 0.75rem;">ჩაწერეთ მხოლოდ ციფრი (1-99)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- სურათების სექცია -->
                         <div class="card mb-3 border-secondary">
                             <div class="card-header bg-secondary text-white">
                                 📷 პროდუქტის სურათი
                             </div>
                             <div class="card-body d-flex align-items-center gap-3">
 
-                                <!-- მიმდინარე სურათის ჩვენება (მხოლოდ რედაქტირებისას) -->
                                 <div th:if="${product.imageUrl != null and product.imageUrl != ''}" class="text-center">
                                     <small class="d-block text-muted mb-1">მიმდინარე სურათი:</small>
-
-                                    <!-- ინტერნეტის ლინკია თუ ლოკალურად ატვირთული ფაილი -->
                                     <img th:if="${#strings.startsWith(product.imageUrl, 'http')}"
                                          th:src="${product.imageUrl}" width="80" height="80" style="object-fit: cover;" class="border rounded">
-
-                                    <!-- ✅ გასწორებული /uploads/ გზა -->
                                     <img th:unless="${#strings.startsWith(product.imageUrl, 'http')}"
                                          th:src="@{'/uploads/' + ${product.imageUrl}}" width="80" height="80" style="object-fit: cover;" class="border rounded">
                                 </div>
 
                                 <div class="flex-grow-1">
-                                    <!-- ვარიანტი 1: ლინკის ჩაგდება -->
                                     <div class="mb-2">
-                                        <label class="form-label fw-bold small">ვარიანტი 1: ჩასვი URL ლინკი (http...)</label>
+                                        <label class="form-label fw-bold small">ვარიანტი 1: ჩასვი URL ლინკი</label>
                                         <input type="text" name="imageUrl" th:value="${product.imageUrl}" class="form-control form-control-sm" placeholder="https://milwaukee...">
                                     </div>
-
-                                    <!-- ვარიანტი 2: ფაილის ატვირთვა -->
                                     <div>
-                                        <label class="form-label fw-bold small">ვარიანტი 2: ატვირთე ფაილი კომპიუტერიდან</label>
+                                        <label class="form-label fw-bold small">ვარიანტი 2: ატვირთე ფაილი</label>
                                         <input type="file" name="imageFile" class="form-control form-control-sm" accept="image/*">
                                         <small class="text-muted" style="font-size: 0.75rem;">(ახალი ფაილის ატვირთვა წაშლის ძველ ლინკს)</small>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
 
