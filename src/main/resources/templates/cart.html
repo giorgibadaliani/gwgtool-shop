@@ -8,7 +8,7 @@
 
 <nav class="navbar navbar-dark bg-dark mb-4">
   <div class="container d-flex justify-content-between">
-    <a class="navbar-brand fw-bold" href="/">ToolMasters 🛠️</a>
+    <a class="navbar-brand fw-bold" href="/">GWG Tools 🛠️</a>
 
     <!-- კალათის ღილაკი -->
     <a href="/cart" class="btn btn-outline-warning position-relative">
@@ -56,14 +56,14 @@
                th:src="${item.product.imageUrl}"
                width="60" height="60" class="img-thumbnail" style="object-fit: contain;" alt="...">
 
-          <!-- 2. ატვირთული სურათი -->
+          <!-- 2. ✅ გასწორებული ატვირთული სურათი -->
           <img th:if="${item.product.imageUrl != null and !#strings.startsWith(item.product.imageUrl, 'http') and item.product.imageUrl != 'link' and item.product.imageUrl != ''}"
-               th:src="@{'/images/' + ${item.product.imageUrl}}"
+               th:src="@{'/uploads/' + ${item.product.imageUrl}}"
                width="60" height="60" class="img-thumbnail" style="object-fit: contain;" alt="...">
 
-          <!-- 3. ლოგო -->
+          <!-- 3. ✅ გასწორებული ლოგო -->
           <img th:if="${item.product.imageUrl == null or item.product.imageUrl == 'link' or item.product.imageUrl == ''}"
-               th:src="@{/uploads/logo.png}"
+               th:src="@{/images/logo.png}"
                width="60" height="60" class="img-thumbnail" style="object-fit: contain;" alt="...">
         </td>
 
@@ -96,7 +96,7 @@
 </div>
 
 <footer class="text-center py-4 mt-5 text-muted">
-  <p>&copy; 2026 ToolMasters. ყველა უფლება დაცულია.</p>
+  <p>&copy; 2026 GWG Tools. ყველა უფლება დაცულია.</p>
 </footer>
 
 </body>

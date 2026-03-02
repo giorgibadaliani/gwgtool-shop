@@ -44,14 +44,14 @@
                              th:src="${product.imageUrl}"
                              width="50" height="50" class="rounded border" style="object-fit: contain;" alt="...">
 
-                        <!-- 2. ატვირთული სურათი -->
+                        <!-- 2. ✅ გასწორებული ატვირთული სურათი -->
                         <img th:if="${product.imageUrl != null and !#strings.startsWith(product.imageUrl, 'http') and product.imageUrl != 'link' and product.imageUrl != ''}"
-                             th:src="@{'/images/' + ${product.imageUrl}}"
+                             th:src="@{'/uploads/' + ${product.imageUrl}}"
                              width="50" height="50" class="rounded border" style="object-fit: contain;" alt="...">
 
-                        <!-- 3. ლოგო -->
+                        <!-- 3. ✅ გასწორებული ლოგო -->
                         <img th:if="${product.imageUrl == null or product.imageUrl == 'link' or product.imageUrl == ''}"
-                             th:src="@{/uploads/logo.png}"
+                             th:src="@{/images/logo.png}"
                              width="50" height="50" class="rounded border" style="object-fit: contain;" alt="...">
                     </td>
 
@@ -62,7 +62,7 @@
                     <!-- მარაგის ფერები -->
                     <td>
                         <span class="badge"
-                              th:classappend="${product.stockQuantity > 0 ? 'bg-success' : 'bg-danger'}"
+                              th:classappend="${product.stockQuantity != null and product.stockQuantity > 0 ? 'bg-success' : 'bg-danger'}"
                               th:text="${product.stockQuantity}">10</span>
                     </td>
 
