@@ -5,14 +5,13 @@
 <head>
   <title>GWG Tools - მთავარი</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <!-- ✅ დამატებულია FontAwesome აიქონებისთვის -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     .product-card { transition: transform 0.2s; }
     .product-card:hover { transform: scale(1.03); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
     .card-img-top { height: 200px; object-fit: contain; padding: 10px; }
 
-    /* ✅ კატეგორიების ღილაკების დიზაინი */
+    /* კატეგორიების ღილაკების დიზაინი */
     .category-btn {
       transition: all 0.3s ease;
       border-radius: 20px;
@@ -25,6 +24,14 @@
       border-color: #dc3545;
       transform: translateY(-2px);
     }
+
+    /* ფილტრის პანელის დიზაინი */
+    .filter-panel {
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
   </style>
 </head>
 <body class="bg-light">
@@ -35,7 +42,6 @@
     <a class="navbar-brand fw-bold" href="/">GWG Tools 🛠️</a>
 
     <div class="d-flex align-items-center">
-      <!-- 1. ადმინის ღილაკები (მხოლოდ შესულებისთვის) -->
       <div sec:authorize="isAuthenticated()" class="d-flex align-items-center me-3">
         <span class="text-white me-3 small d-none d-md-block">გამარჯობა, ადმინ! 👋</span>
         <a href="/products" class="btn btn-outline-light btn-sm me-2">ადმინ პანელი</a>
@@ -45,7 +51,6 @@
         </form>
       </div>
 
-      <!-- კალათა (ყველასთვის) -->
       <a href="/cart" class="btn btn-outline-warning position-relative">
         🛒 კალათა
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -56,156 +61,171 @@
   </div>
 </nav>
 
-<!-- ✅ ახალი დამატებული: კატეგორიების ბარი -->
+<!-- კატეგორიების ბარი -->
 <div class="bg-white shadow-sm mb-4 border-bottom py-3">
   <div class="container">
     <div class="d-flex justify-content-center flex-wrap gap-2">
       <!-- ღილაკი "ყველა" -->
       <a th:href="@{/}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
-        <span style="font-size: 1.5rem; margin-right: 8px;">📋</span>
-        ყველა
+        <span style="font-size: 1.5rem; margin-right: 8px;">📋</span>ყველა
       </a>
-
       <!-- ღილაკი "დრელები" -->
-      <a th:href="@{/category/DRILL}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
-        <img th:src="@{/images/drill.png}" alt="დრელები"
-             style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
-        დრელები / სახრახნისები
+      <a th:href="@{/?category=DRILL}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'DRILL'} ? 'active bg-danger text-white border-danger' : ''">
+        <img th:src="@{/images/drill.png}" alt="დრელები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
+        დრელები
       </a>
-
       <!-- ღილაკი "ბალგარკები" -->
-      <a th:href="@{/category/ANGLE_GRINDER}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
-        <img th:src="@{/images/AngelGrinder.png}" alt="ბალგარკები"
-             style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
+      <a th:href="@{/?category=ANGLE_GRINDER}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'ANGLE_GRINDER'} ? 'active bg-danger text-white border-danger' : ''">
+        <img th:src="@{/images/AngelGrinder.png}" alt="ბალგარკები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
         ბალგარკები
       </a>
-
       <!-- ღილაკი "პერფორატორები" -->
-      <a th:href="@{/category/ROTARY_HAMMER}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
-        <img th:src="@{/images/peferator.png}" alt="პერფორატორები"
-             style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
+      <a th:href="@{/?category=ROTARY_HAMMER}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'ROTARY_HAMMER'} ? 'active bg-danger text-white border-danger' : ''">
+        <img th:src="@{/images/peferator.png}" alt="პერფორატორები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
         პერფორატორები
       </a>
-
       <!-- ღილაკი "ქანჩსახრახნები" -->
-      <a th:href="@{/category/IMPACT_WRENCH}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
-        <img th:src="@{/images/impact.png}" alt="ქანჩსახრახნები"
-             style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
+      <a th:href="@{/?category=IMPACT_WRENCH}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'IMPACT_WRENCH'} ? 'active bg-danger text-white border-danger' : ''">
+        <img th:src="@{/images/impact.png}" alt="ქანჩსახრახნები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
         ქანჩსახრახნები
       </a>
-
       <!-- ღილაკი "ხერხები" -->
-      <a th:href="@{/category/SAW}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
-        <img th:src="@{/images/angle.png}" alt="ხერხები"
-             style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
+      <a th:href="@{/?category=SAW}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'SAW'} ? 'active bg-danger text-white border-danger' : ''">
+        <img th:src="@{/images/angle.png}" alt="ხერხები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
         ხერხები
       </a>
-
-      <!-- ახალი: ღილაკი "ნეილგანები" -->
-      <a th:href="@{/category/NAIL_GUN}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
-        <img th:src="@{/images/nailgun.png}" alt="ნეილგანები"
-             style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
-        ნეილგანები (ჩამჭედები)
-      </a>
-
       <!-- ახალი: ღილაკი "ბატარეები" -->
-      <a th:href="@{/category/BATTERY}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
-        <img th:src="@{/images/battery.png}" alt="ბატარეები"
-             style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
-        ბატარეები და დამტენები
+      <a th:href="@{/?category=BATTERY}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center" th:classappend="${selectedCategory == 'BATTERY'} ? 'active bg-danger text-white border-danger' : ''">
+        <img th:src="@{/images/battery.png}" alt="ბატარეები" style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
+        ბატარეები
       </a>
-
-      <!-- ახალი: ღილაკი "საზომი ხელსაწყოები" -->
-      <a th:href="@{/category/MEASURING_TOOLS}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
-        <img th:src="@{/images/tape_measure.png}" alt="საზომები"
-             style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
-        საზომი ხელსაწყოები
-      </a>
-
-      <!-- ახალი: ღილაკი " განათება" -->
-      <a th:href="@{/category/LIGHTING}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
-        <img th:src="@{/images/light.png}" alt="განათება"
-             style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
-        განათება
-      </a>
-
-      <!-- ახალი: ღილაკი " ხელსაწყოების აქსესუარები " -->
-      <a th:href="@{/category/TOOL_ACCESSORIES}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
-        <img th:src="@{/images/TOOL_ACCESSORIES.png}" alt="აქსესუარები"
-             style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
-        ხელსაწყოების აქსესუარები
-      </a>
-
-      <!-- ახალი: ღილაკი "ინდივიდუალური დაცვა" -->
-      <a th:href="@{/category/SAFETY_GEAR}" class="btn btn-outline-dark m-1 category-btn rounded-pill px-3 py-2 d-inline-flex align-items-center">
-        <img th:src="@{/images/safety.png}" alt="დაცვა"
-             style="width: 40px; height: 40px; margin-right: 8px; object-fit: contain; mix-blend-mode: multiply;">
-        აღჭურვილობა და დაცვა
-      </a>
-
     </div>
   </div>
 </div>
 
-<div class="container">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="m-0">ჩვენი პროდუქცია</h2>
-    <div sec:authorize="isAuthenticated()">
-      <a href="/products/new" class="btn btn-success">+ ახალი ხელსაწყო</a>
-    </div>
-  </div>
+<div class="container my-4">
+  <div class="row">
 
-  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
-    <div class="col" th:each="product : ${products}">
-      <div class="card h-100 product-card border-0 shadow-sm">
+    <!-- 🟢 ფილტრაციის პანელი (მარცხენა სვეტი) -->
+    <div class="col-md-3 mb-4">
+      <div class="filter-panel">
+        <h5 class="fw-bold mb-3"><i class="fas fa-filter"></i> ფილტრი</h5>
 
-        <!-- 1. ინტერნეტის სურათი -->
-        <img th:if="${product.imageUrl != null and #strings.startsWith(product.imageUrl, 'http')}"
-             th:src="${product.imageUrl}"
-             class="card-img-top" alt="Web Image">
+        <form action="/" method="GET">
+          <!-- კატეგორია ფარულად, რომ ფილტრის დროს არ დაიკარგოს -->
+          <input type="hidden" name="category" th:value="${selectedCategory}" th:if="${selectedCategory != null}">
 
-        <!-- 2. ლოკალურად ატვირთული სურათი -->
-        <img th:if="${product.imageUrl != null and !#strings.startsWith(product.imageUrl, 'http') and product.imageUrl != 'link' and product.imageUrl != ''}"
-             th:src="@{'/uploads/' + ${product.imageUrl}}"
-             class="card-img-top" alt="Local Image">
-
-        <!-- 3. ლოგო (სურათი არ არის) -->
-        <img th:if="${product.imageUrl == null or product.imageUrl == 'link' or product.imageUrl == ''}"
-             th:src="@{/images/logo.png}"
-             class="card-img-top" alt="Default Logo">
-
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title" th:text="${product.name}">დასახელება</h5>
-          <p class="card-text text-muted small" th:text="${product.sku}">SKU</p>
-
-          <div class="mt-auto">
-            <h4 class="text-danger fw-bold mb-2" th:text="${product.price} + ' ₾'">0 ₾</h4>
-
-            <!-- ✅ სტოკის ინდიკატორი -->
-            <div class="mb-3">
-              <small th:if="${product.stockQuantity != null and product.stockQuantity > 5}"
-                     class="text-success fw-semibold">✅ მარაგშია</small>
-              <small th:if="${product.stockQuantity != null and product.stockQuantity <= 5 and product.stockQuantity > 0}"
-                     class="text-warning fw-semibold">
-                ⚠️ მარაგი მცირეა (<span th:text="${product.stockQuantity}"></span> ც.)
-              </small>
-              <small th:if="${product.stockQuantity == null or product.stockQuantity == 0}"
-                     class="text-danger fw-semibold">❌ არ არის მარაგში</small>
+          <!-- ფასის ფილტრი -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">ფასი (₾)</label>
+            <div class="d-flex gap-2">
+              <input type="number" name="minPrice" class="form-control form-control-sm" placeholder="დან" th:value="${minPrice}">
+              <input type="number" name="maxPrice" class="form-control form-control-sm" placeholder="მდე" th:value="${maxPrice}">
             </div>
+          </div>
 
-            <div class="d-grid gap-2">
-              <a th:href="@{/product/{id}(id=${product.id})}" class="btn btn-primary">დეტალები / ყიდვა</a>
-              <a th:href="@{/cart/add/{id}(id=${product.id})}" class="btn btn-outline-success btn-sm">🛒 დამატება</a>
-              <div sec:authorize="isAuthenticated()">
-                <a th:href="@{'/products/delete/' + ${product.id}}"
-                   class="btn btn-sm btn-outline-danger w-100 mt-2"
-                   onclick="return confirm('ნამდვილად გინდა წაშლა?')">🗑️ წაშლა</a>
+          <!-- ძაბვა / სისტემა -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">სისტემა (Voltage)</label>
+            <select name="voltage" class="form-select form-select-sm">
+              <option value="">ყველა</option>
+              <option value="M12" th:selected="${selectedVoltage == 'M12'}">M12™ სისტემა</option>
+              <option value="M18" th:selected="${selectedVoltage == 'M18'}">M18™ სისტემა</option>
+              <option value="MX FUEL" th:selected="${selectedVoltage == 'MX FUEL'}">MX FUEL™</option>
+              <option value="230V" th:selected="${selectedVoltage == '230V'}">230V ქსელი</option>
+            </select>
+          </div>
+
+          <!-- ძრავის ტიპი -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">ძრავის ტიპი</label>
+            <select name="isBrushless" class="form-select form-select-sm">
+              <option value="">ყველა</option>
+              <option value="true" th:selected="${selectedBrushless == true}">უნახშირო (Brushless / FUEL)</option>
+              <option value="false" th:selected="${selectedBrushless == false}">ნახშირით (Brushed)</option>
+            </select>
+          </div>
+
+          <!-- კომპლექტაცია -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold small">კომპლექტაცია</label>
+            <select name="isToolOnly" class="form-select form-select-sm">
+              <option value="">ყველა</option>
+              <option value="true" th:selected="${selectedToolOnly == true}">მხოლოდ კარკასი (Bare Tool)</option>
+              <option value="false" th:selected="${selectedToolOnly == false}">სრული კომპლექტი (Kit)</option>
+            </select>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-danger btn-sm fw-bold">გაფილტვრა</button>
+            <a href="/" class="btn btn-outline-secondary btn-sm">გასუფთავება</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 🟢 პროდუქტების სია (მარჯვენა სვეტი) -->
+    <div class="col-md-9">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0" th:text="${selectedCategory != null ? 'კატეგორია: ' + selectedCategory : 'ყველა ინსტრუმენტი'}">ჩვენი პროდუქცია</h2>
+        <div sec:authorize="isAuthenticated()">
+          <a href="/products/new" class="btn btn-success btn-sm">+ ახალი ხელსაწყო</a>
+        </div>
+      </div>
+
+      <!-- თუ ფილტრმა არაფერი იპოვა -->
+      <div th:if="${products.isEmpty()}" class="alert alert-warning text-center mt-4">
+        ამ კრიტერიუმებით პროდუქტი ვერ მოიძებნა. სცადეთ ფილტრის გასუფთავება.
+      </div>
+
+      <!-- პროდუქტების გრიდი -->
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" th:each="product : ${products}">
+          <div class="card h-100 product-card border-0 shadow-sm">
+
+            <img th:if="${product.imageUrl != null and #strings.startsWith(product.imageUrl, 'http')}"
+                 th:src="${product.imageUrl}" class="card-img-top" alt="Web Image">
+
+            <img th:if="${product.imageUrl != null and !#strings.startsWith(product.imageUrl, 'http') and product.imageUrl != 'link' and product.imageUrl != ''}"
+                 th:src="@{'/uploads/' + ${product.imageUrl}}" class="card-img-top" alt="Local Image">
+
+            <img th:if="${product.imageUrl == null or product.imageUrl == 'link' or product.imageUrl == ''}"
+                 th:src="@{/images/logo.png}" class="card-img-top" alt="Default Logo">
+
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title" th:text="${product.name}">დასახელება</h5>
+              <p class="card-text text-muted small" th:text="${product.sku}">SKU</p>
+
+              <div class="mt-auto">
+                <h4 class="text-danger fw-bold mb-2" th:text="${product.price} + ' ₾'">0 ₾</h4>
+
+                <div class="mb-3">
+                  <small th:if="${product.stockQuantity != null and product.stockQuantity > 5}"
+                         class="text-success fw-semibold">✅ მარაგშია</small>
+                  <small th:if="${product.stockQuantity != null and product.stockQuantity <= 5 and product.stockQuantity > 0}"
+                         class="text-warning fw-semibold">
+                    ⚠️ მარაგი მცირეა (<span th:text="${product.stockQuantity}"></span> ც.)
+                  </small>
+                  <small th:if="${product.stockQuantity == null or product.stockQuantity == 0}"
+                         class="text-danger fw-semibold">❌ არ არის მარაგში</small>
+                </div>
+
+                <div class="d-grid gap-2">
+                  <a th:href="@{/product/{id}(id=${product.id})}" class="btn btn-primary btn-sm">დეტალები / ყიდვა</a>
+                  <a th:href="@{/cart/add/{id}(id=${product.id})}" class="btn btn-outline-success btn-sm">🛒 დამატება</a>
+                  <div sec:authorize="isAuthenticated()">
+                    <a th:href="@{'/products/delete/' + ${product.id}}"
+                       class="btn btn-sm btn-outline-danger w-100 mt-2"
+                       onclick="return confirm('ნამდვილად გინდა წაშლა?')">🗑️ წაშლა</a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -213,11 +233,8 @@
   <p>&copy; 2026 GWG Tools. ყველა უფლება დაცულია.</p>
 </footer>
 
-<!-- ✅ Cookie Banner -->
-<div id="cookieBanner"
-     style="display:none; position:fixed; bottom:0; left:0; right:0;
-            background:#212529; color:#fff; padding:14px 20px;
-            z-index:9999; border-top:3px solid #ffc107;">
+<!-- Cookie Banner -->
+<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#212529; color:#fff; padding:14px 20px; z-index:9999; border-top:3px solid #ffc107;">
   <div class="container d-flex align-items-center justify-content-between flex-wrap gap-2">
     <p class="mb-0" style="font-size:14px;">
       🍪 ჩვენ ვიყენებთ cookie-ებს საიტის გამართული მუშაობისთვის.
@@ -227,17 +244,9 @@
     </button>
   </div>
 </div>
-
 <script>
-  function acceptCookies() {
-    localStorage.setItem('cookiesAccepted', 'true');
-    document.getElementById('cookieBanner').style.display = 'none';
-  }
-  window.addEventListener('load', function () {
-    if (!localStorage.getItem('cookiesAccepted')) {
-      document.getElementById('cookieBanner').style.display = 'block';
-    }
-  });
+  function acceptCookies() { localStorage.setItem('cookiesAccepted', 'true'); document.getElementById('cookieBanner').style.display = 'none'; }
+  window.addEventListener('load', function () { if (!localStorage.getItem('cookiesAccepted')) { document.getElementById('cookieBanner').style.display = 'block'; } });
 </script>
 
 </body>

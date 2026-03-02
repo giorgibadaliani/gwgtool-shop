@@ -25,10 +25,43 @@ public class ProductController {
         this.characteristicRepo = characteristicRepo;
     }
 
+    // 🚨 შეცვლილი მთავარი მეთოდი: ახლა იღებს ფილტრებს!
     @GetMapping("/")
-    public String showShop(Model model) {
-        model.addAttribute("products", productService.getAllProducts());
+    public String showShop(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String voltage,
+            @RequestParam(required = false) Boolean isBrushless,
+            @RequestParam(required = false) Boolean isToolOnly,
+            Model model) {
+
+        // კატეგორიის სტრინგის გადაყვანა Enum-ში თუ მოწოდებულია
+        Product.Category catEnum = null;
+        if (category != null && !category.isEmpty()) {
+            try {
+                catEnum = Product.Category.valueOf(category.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // თუ არასწორი კატეგორია ჩაწერეს URL-ში, უბრალოდ იგნორირებას ვუკეთებთ
+            }
+        }
+
+        // ვიძახებთ ჩვენს ახალ ჭკვიან ფილტრს
+        List<Product> products = productService.filterProducts(
+                catEnum, minPrice, maxPrice, voltage, isBrushless, isToolOnly
+        );
+
+        model.addAttribute("products", products);
         model.addAttribute("cartCount", cartService.getItems().size());
+
+        // ვაგზავნით არჩეულ ფილტრებს უკან HTML-ში, რომ მონიშნული დარჩეს სლაიდერები და ჩექბოქსები
+        model.addAttribute("selectedCategory", category);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
+        model.addAttribute("selectedVoltage", voltage);
+        model.addAttribute("selectedBrushless", isBrushless);
+        model.addAttribute("selectedToolOnly", isToolOnly);
+
         return "index";
     }
 
@@ -39,7 +72,6 @@ public class ProductController {
             return "redirect:/";
         }
 
-        // ვიღებთ მახასიათებლებს
         List<ProductCharacteristic> characteristics = characteristicRepo.findBySku(product.getSku());
 
         model.addAttribute("product", product);
@@ -54,19 +86,10 @@ public class ProductController {
         return "products";
     }
 
-    // --- მეთოდი კატეგორიებისთვის ---
+    // ეს მეთოდი დავტოვე ძველი ბმულებისთვის, მაგრამ ისიც ჩვენს ახალ ფილტრს გამოიყენებს
     @GetMapping("/category/{categoryName}")
     public String showCategory(@PathVariable("categoryName") String categoryName, Model model) {
-        try {
-            Product.Category category = Product.Category.valueOf(categoryName.toUpperCase());
-            List<Product> products = productService.getProductsByCategory(category);
-
-            model.addAttribute("products", products);
-            model.addAttribute("cartCount", cartService.getItems().size());
-            return "index";
-        } catch (IllegalArgumentException e) {
-            return "redirect:/";
-        }
+        return showShop(categoryName, null, null, null, null, null, model);
     }
 
     @GetMapping("/products/new")
@@ -81,20 +104,13 @@ public class ProductController {
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
 
         try {
-            // 1. თუ პროდუქტი უკვე არსებობს (რედაქტირებაა)
             if (product.getId() != null) {
                 Product existingProduct = productService.getProductById(product.getId());
                 if (existingProduct != null) {
-
-                    // თუ SKU და Description ცარიელია, ძველი შევინარჩუნოთ
                     if (product.getSku() == null) product.setSku(existingProduct.getSku());
                     if (product.getDescription() == null || product.getDescription().isEmpty()) {
                         product.setDescription(existingProduct.getDescription());
                     }
-
-                    // 🚨 სურათის ლოგიკა:
-                    // თუ მომხმარებელმა ახალი ფაილი არ ატვირთა და არც ახალი ლინკი ჩაწერა
-                    // (ანუ ფორმიდან მოსული imageUrl ცარიელია), მაშინ დავუტოვოთ ძველი სურათი.
                     if ((imageFile == null || imageFile.isEmpty()) &&
                             (product.getImageUrl() == null || product.getImageUrl().isEmpty())) {
                         product.setImageUrl(existingProduct.getImageUrl());
@@ -102,14 +118,10 @@ public class ProductController {
                 }
             }
 
-            // 2. თუ ახალი ფაილი ატვირთა, ის ყოველთვის "მოიგებს" და გადააწერს ლინკს
             if (imageFile != null && !imageFile.isEmpty()) {
                 String fileName = productService.uploadImage(imageFile);
                 product.setImageUrl(fileName);
             }
-            // 3. თუ ფაილი არ აუტვირთავს, მაგრამ ლინკი ჩააგდო ტექსტურ ველში,
-            // product.getImageUrl() უკვე შეიცავს მაგ ლინკს (რადგან @ModelAttribute-მა თავისით ჩასვა)
-            // და პირდაპირ ეგ შეინახება!
 
             productService.saveProduct(product);
             return "redirect:/products";

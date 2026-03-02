@@ -77,9 +77,14 @@ public class ProductService {
         return fileName;
     }
 
-    // --- ახალი დამატებული მეთოდი კატეგორიებისთვის ---
-    // 7. პროდუქტების ფილტრაცია კატეგორიის მიხედვით
+    // 7. პროდუქტების ფილტრაცია კატეგორიის მიხედვით (ძველი მეთოდი)
     public List<Product> getProductsByCategory(Product.Category category) {
         return productRepository.findByCategory(category);
+    }
+
+    // --- 🚨 ახალი დამატებული: მთავარი დინამიური ფილტრი 🚨 ---
+    // 8. პროდუქტების გაფილტვრა მრავალი პარამეტრით (ფასი, ვოლტაჟი, კატეგორია და ა.შ.)
+    public List<Product> filterProducts(Product.Category category, Double minPrice, Double maxPrice, String voltage, Boolean isBrushless, Boolean isToolOnly) {
+        return productRepository.findFilteredProducts(category, minPrice, maxPrice, voltage, isBrushless, isToolOnly);
     }
 }
