@@ -91,49 +91,61 @@ public class ProductController {
         return "create_product";
     }
 
-    // 🌟 დაზღვეული შენახვის მეთოდი (იცავს 500 ერორისგან)
+    // 🌟 შეცვლილი, დაცული შენახვის მეთოდი
     @PostMapping("/products/save")
     public String saveProduct(
             @ModelAttribute("product") Product product,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
 
-        try {
-            // ცარიელი მნიშვნელობების დაცვა, რომ ბაზა არ გაიქრაშოს
-            if (product.getDiscountPercentage() != null && product.getDiscountPercentage() <= 0) {
-                product.setDiscountPercentage(null);
-            }
-            if (product.getVoltage() != null && product.getVoltage().trim().isEmpty()) {
-                product.setVoltage(null);
-            }
+        // თუ ფასდაკლების ველი მოვიდა 0 ან უარყოფითი, ვაქცევთ null-ად (რომ შეცდომა არ ამოაგდოს)
+        if (product.getDiscountPercentage() != null && product.getDiscountPercentage() <= 0) {
+            product.setDiscountPercentage(null);
+        }
 
-            if (product.getId() != null) {
-                Product existingProduct = productService.getProductById(product.getId());
-                if (existingProduct != null) {
-                    if (product.getSku() == null || product.getSku().isEmpty()) {
-                        product.setSku(existingProduct.getSku());
-                    }
-                    if (product.getDescription() == null || product.getDescription().isEmpty()) {
-                        product.setDescription(existingProduct.getDescription());
-                    }
-                    if ((imageFile == null || imageFile.isEmpty()) &&
-                            (product.getImageUrl() == null || product.getImageUrl().isEmpty())) {
-                        product.setImageUrl(existingProduct.getImageUrl());
-                    }
+        // თუ Voltage ცარიელი ტექსტია, null-ად ვაქცევთ
+        if (product.getVoltage() != null && product.getVoltage().trim().isEmpty()) {
+            product.setVoltage(null);
+        }
+
+        // არსებული პროდუქტის განახლების ლოგიკა
+        if (product.getId() != null) {
+            Product existingProduct = productService.getProductById(product.getId());
+            if (existingProduct != null) {
+                // თუ SKU ფორმაში არ იყო, ძველს ვტოვებთ
+                if (product.getSku() == null || product.getSku().trim().isEmpty()) {
+                    product.setSku(existingProduct.getSku());
+                }
+                // თუ აღწერა არ იყო, ძველს ვტოვებთ
+                if (product.getDescription() == null || product.getDescription().trim().isEmpty()) {
+                    product.setDescription(existingProduct.getDescription());
+                }
+                // მარაგის დაცვა (რომ შენახვისას არ გაქრეს)
+                if (product.getStockQuantity() == null) {
+                    product.setStockQuantity(existingProduct.getStockQuantity());
+                }
+                // სურათის დაცვა
+                if ((imageFile == null || imageFile.isEmpty()) &&
+                        (product.getImageUrl() == null || product.getImageUrl().trim().isEmpty())) {
+                    product.setImageUrl(existingProduct.getImageUrl());
                 }
             }
+        }
 
+        // ახალი სურათის ატვირთვა
+        try {
             if (imageFile != null && !imageFile.isEmpty()) {
                 String fileName = productService.uploadImage(imageFile);
                 product.setImageUrl(fileName);
             }
-
-            productService.saveProduct(product);
-            return "redirect:/products";
-
         } catch (Exception e) {
-            e.printStackTrace();
-            return "redirect:/products?error=true";
+            // თუ სურათი ვერ აიტვირთა, უბრალოდ ლოგში დავწერთ და ბაზის შენახვას გავაგრძელებთ
+            System.err.println("სურათის ატვირთვა ვერ მოხერხდა: " + e.getMessage());
         }
+
+        // ბაზაში შენახვა (try-catch აღარ გვინდა, რადგან ყველა null მნიშვნელობა დაზღვეულია)
+        productService.saveProduct(product);
+
+        return "redirect:/products";
     }
 
     @GetMapping("/products/edit/{id}")
