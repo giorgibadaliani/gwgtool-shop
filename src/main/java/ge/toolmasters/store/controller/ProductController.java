@@ -33,19 +33,27 @@ public class ProductController {
             @RequestParam(required = false) String voltage,
             @RequestParam(required = false) Boolean isBrushless,
             @RequestParam(required = false) Boolean isToolOnly,
+            @RequestParam(required = false) String sku, // ✅ ახალი დამატებული SKU ძებნა
             Model model) {
 
-        Product.Category catEnum = null;
-        if (category != null && !category.isEmpty()) {
-            try {
-                catEnum = Product.Category.valueOf(category.toUpperCase());
-            } catch (IllegalArgumentException e) {
-            }
-        }
+        List<Product> products;
 
-        List<Product> products = productService.filterProducts(
-                catEnum, minPrice, maxPrice, voltage, isBrushless, isToolOnly
-        );
+        // ✅ თუ SKU ჩაწერილია, მხოლოდ მაგით ვეძებთ და სხვა ფილტრებს ვაიგნორებთ
+        if (sku != null && !sku.trim().isEmpty()) {
+            products = productService.searchProductsBySku(sku);
+        } else {
+            // წინააღმდეგ შემთხვევაში ვამუშავებთ სტანდარტულ ფილტრაციას
+            Product.Category catEnum = null;
+            if (category != null && !category.isEmpty()) {
+                try {
+                    catEnum = Product.Category.valueOf(category.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                }
+            }
+            products = productService.filterProducts(
+                    catEnum, minPrice, maxPrice, voltage, isBrushless, isToolOnly
+            );
+        }
 
         model.addAttribute("products", products);
         model.addAttribute("cartCount", cartService.getItems().size());
@@ -55,6 +63,7 @@ public class ProductController {
         model.addAttribute("selectedVoltage", voltage);
         model.addAttribute("selectedBrushless", isBrushless);
         model.addAttribute("selectedToolOnly", isToolOnly);
+        model.addAttribute("searchedSku", sku); // ✅ HTML-ში რომ შევინარჩუნოთ ჩაწერილი ტექსტი
 
         return "index";
     }
@@ -75,14 +84,23 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public String listProducts(Model model) {
-        model.addAttribute("products", productService.getAllProducts());
+    public String listProducts(@RequestParam(required = false) String sku, Model model) { // ✅ SKU პარამეტრი დაემატა ადმინშიც
+        List<Product> products;
+
+        if (sku != null && !sku.trim().isEmpty()) {
+            products = productService.searchProductsBySku(sku);
+        } else {
+            products = productService.getAllProducts();
+        }
+
+        model.addAttribute("products", products);
+        model.addAttribute("searchedSku", sku); // ✅ HTML-ისთვის
         return "products";
     }
 
     @GetMapping("/category/{categoryName}")
     public String showCategory(@PathVariable("categoryName") String categoryName, Model model) {
-        return showShop(categoryName, null, null, null, null, null, model);
+        return showShop(categoryName, null, null, null, null, null, null, model); // ✅ დაემატა 1 null (sku-სთვის)
     }
 
     @GetMapping("/products/new")

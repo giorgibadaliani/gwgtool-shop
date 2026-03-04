@@ -87,4 +87,12 @@ public class ProductService {
     public List<Product> filterProducts(Product.Category category, Double minPrice, Double maxPrice, String voltage, Boolean isBrushless, Boolean isToolOnly) {
         return productRepository.findFilteredProducts(category, minPrice, maxPrice, voltage, isBrushless, isToolOnly);
     }
+
+    // ✅ ახალი დამატებული: SKU კოდით ძებნა მთავარი და ადმინ გვერდისთვის
+    public List<Product> searchProductsBySku(String sku) {
+        if (sku == null || sku.trim().isEmpty()) {
+            return getAllProducts(); // თუ ცარიელია, ვაბრუნებთ ყველას
+        }
+        return productRepository.findBySkuContainingIgnoreCase(sku.trim());
+    }
 }

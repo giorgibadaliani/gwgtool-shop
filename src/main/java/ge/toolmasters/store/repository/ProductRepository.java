@@ -16,6 +16,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // ეს აუცილებელია!
     Optional<Product> findBySku(String sku);
 
+    // ✅ ახალი დამატებული: იპოვის პროდუქტებს SKU კოდის ნაწილობრივი დამთხვევით (დიდი/პატარა ასოების იგნორირებით)
+    List<Product> findBySkuContainingIgnoreCase(String sku);
+
     // იპოვის ყველა პროდუქტს ვოლტაჟის მიხედვით (მაგ: "M18")
     List<Product> findByVoltage(String voltage);
 

@@ -16,12 +16,27 @@
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>📦 პროდუქტების მართვა</h2>
-        <a href="/products/new" class="btn btn-success">+ ახალი პროდუქტის დამატება</a>
+
+        <!-- ✅ დამატებულია საძიებო ველი და ღილაკი ერთად -->
+        <div class="d-flex align-items-center gap-3">
+            <form th:action="@{/products}" method="get" class="d-flex" style="width: 300px;">
+                <input type="text" name="sku" class="form-control me-2" placeholder="SKU კოდით ძებნა..." th:value="${searchedSku}">
+                <button type="submit" class="btn btn-secondary">ძებნა</button>
+                <a th:if="${searchedSku != null and searchedSku != ''}" th:href="@{/products}" class="btn btn-outline-danger ms-2">X</a>
+            </form>
+
+            <a href="/products/new" class="btn btn-success fw-bold">+ ახალი პროდუქტის დამატება</a>
+        </div>
     </div>
 
     <div class="card shadow border-0">
         <div class="card-body p-0">
-            <table class="table table-hover table-striped align-middle mb-0">
+            <!-- თუ პროდუქტი ვერ მოიძებნა -->
+            <div th:if="${products.isEmpty()}" class="p-4 text-center text-muted">
+                <h5 class="mb-0">პროდუქტი ვერ მოიძებნა</h5>
+            </div>
+
+            <table th:if="${!products.isEmpty()}" class="table table-hover table-striped align-middle mb-0">
                 <thead class="table-dark">
                 <tr>
                     <th>ID</th>
