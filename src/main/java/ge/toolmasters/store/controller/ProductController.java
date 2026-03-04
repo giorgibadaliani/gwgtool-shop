@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class ProductController {
@@ -33,16 +34,20 @@ public class ProductController {
             @RequestParam(required = false) String voltage,
             @RequestParam(required = false) Boolean isBrushless,
             @RequestParam(required = false) Boolean isToolOnly,
-            @RequestParam(required = false) String sku, // ✅ ახალი დამატებული SKU ძებნა
+            @RequestParam(required = false) String sku,
             Model model) {
+
+        // 💡 1. ბაგის შესწორება: თუ Voltage "ყველა" აირჩიეს, HTML ცარიელ "" აგზავნის.
+        // SQL-ს უჭირს ამის გაგება, ამიტომ null-ად ვაქცევთ.
+        if (voltage != null && voltage.trim().isEmpty()) {
+            voltage = null;
+        }
 
         List<Product> products;
 
-        // ✅ თუ SKU ჩაწერილია, მხოლოდ მაგით ვეძებთ და სხვა ფილტრებს ვაიგნორებთ
         if (sku != null && !sku.trim().isEmpty()) {
             products = productService.searchProductsBySku(sku);
         } else {
-            // წინააღმდეგ შემთხვევაში ვამუშავებთ სტანდარტულ ფილტრაციას
             Product.Category catEnum = null;
             if (category != null && !category.isEmpty()) {
                 try {
@@ -50,9 +55,25 @@ public class ProductController {
                 } catch (IllegalArgumentException e) {
                 }
             }
+            // ბაზიდან მოაქვს ყველა გაფილტრული პროდუქტი (ფასის გარდა)
             products = productService.filterProducts(
                     catEnum, minPrice, maxPrice, voltage, isBrushless, isToolOnly
             );
+        }
+
+        // 💡 2. ბაგის შესწორება: ფასების ფილტრაცია აქციების გათვალისწინებით
+        if (minPrice != null || maxPrice != null) {
+            products = products.stream().filter(product -> {
+                // ვიღებთ რეალურ ფასს (თუ აქცია აქვს - ფასდაკლებულს, თუ არა - ჩვეულებრივს)
+                double actualPrice = (product.getDiscountPercentage() != null && product.getDiscountPercentage() > 0)
+                        ? product.getDiscountedPrice()
+                        : product.getPrice();
+
+                boolean passesMin = (minPrice == null || actualPrice >= minPrice);
+                boolean passesMax = (maxPrice == null || actualPrice <= maxPrice);
+
+                return passesMin && passesMax;
+            }).collect(Collectors.toList());
         }
 
         model.addAttribute("products", products);
@@ -63,7 +84,7 @@ public class ProductController {
         model.addAttribute("selectedVoltage", voltage);
         model.addAttribute("selectedBrushless", isBrushless);
         model.addAttribute("selectedToolOnly", isToolOnly);
-        model.addAttribute("searchedSku", sku); // ✅ HTML-ში რომ შევინარჩუნოთ ჩაწერილი ტექსტი
+        model.addAttribute("searchedSku", sku);
 
         return "index";
     }
@@ -84,7 +105,7 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public String listProducts(@RequestParam(required = false) String sku, Model model) { // ✅ SKU პარამეტრი დაემატა ადმინშიც
+    public String listProducts(@RequestParam(required = false) String sku, Model model) {
         List<Product> products;
 
         if (sku != null && !sku.trim().isEmpty()) {
@@ -94,13 +115,13 @@ public class ProductController {
         }
 
         model.addAttribute("products", products);
-        model.addAttribute("searchedSku", sku); // ✅ HTML-ისთვის
+        model.addAttribute("searchedSku", sku);
         return "products";
     }
 
     @GetMapping("/category/{categoryName}")
     public String showCategory(@PathVariable("categoryName") String categoryName, Model model) {
-        return showShop(categoryName, null, null, null, null, null, null, model); // ✅ დაემატა 1 null (sku-სთვის)
+        return showShop(categoryName, null, null, null, null, null, null, model);
     }
 
     @GetMapping("/products/new")
@@ -109,39 +130,31 @@ public class ProductController {
         return "create_product";
     }
 
-    // 🌟 შეცვლილი, დაცული შენახვის მეთოდი
     @PostMapping("/products/save")
     public String saveProduct(
             @ModelAttribute("product") Product product,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
 
-        // თუ ფასდაკლების ველი მოვიდა 0 ან უარყოფითი, ვაქცევთ null-ად (რომ შეცდომა არ ამოაგდოს)
         if (product.getDiscountPercentage() != null && product.getDiscountPercentage() <= 0) {
             product.setDiscountPercentage(null);
         }
 
-        // თუ Voltage ცარიელი ტექსტია, null-ად ვაქცევთ
         if (product.getVoltage() != null && product.getVoltage().trim().isEmpty()) {
             product.setVoltage(null);
         }
 
-        // არსებული პროდუქტის განახლების ლოგიკა
         if (product.getId() != null) {
             Product existingProduct = productService.getProductById(product.getId());
             if (existingProduct != null) {
-                // თუ SKU ფორმაში არ იყო, ძველს ვტოვებთ
                 if (product.getSku() == null || product.getSku().trim().isEmpty()) {
                     product.setSku(existingProduct.getSku());
                 }
-                // თუ აღწერა არ იყო, ძველს ვტოვებთ
                 if (product.getDescription() == null || product.getDescription().trim().isEmpty()) {
                     product.setDescription(existingProduct.getDescription());
                 }
-                // მარაგის დაცვა (რომ შენახვისას არ გაქრეს)
                 if (product.getStockQuantity() == null) {
                     product.setStockQuantity(existingProduct.getStockQuantity());
                 }
-                // სურათის დაცვა
                 if ((imageFile == null || imageFile.isEmpty()) &&
                         (product.getImageUrl() == null || product.getImageUrl().trim().isEmpty())) {
                     product.setImageUrl(existingProduct.getImageUrl());
@@ -149,18 +162,15 @@ public class ProductController {
             }
         }
 
-        // ახალი სურათის ატვირთვა
         try {
             if (imageFile != null && !imageFile.isEmpty()) {
                 String fileName = productService.uploadImage(imageFile);
                 product.setImageUrl(fileName);
             }
         } catch (Exception e) {
-            // თუ სურათი ვერ აიტვირთა, უბრალოდ ლოგში დავწერთ და ბაზის შენახვას გავაგრძელებთ
             System.err.println("სურათის ატვირთვა ვერ მოხერხდა: " + e.getMessage());
         }
 
-        // ბაზაში შენახვა (try-catch აღარ გვინდა, რადგან ყველა null მნიშვნელობა დაზღვეულია)
         productService.saveProduct(product);
 
         return "redirect:/products";

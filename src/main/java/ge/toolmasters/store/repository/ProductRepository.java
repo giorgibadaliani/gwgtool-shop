@@ -12,11 +12,9 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    // აქ ხდება: Spring-ი მეთოდის სახელიდან ხვდება რა SQL დაწეროს
-    // ეს აუცილებელია!
     Optional<Product> findBySku(String sku);
 
-    // ✅ ახალი დამატებული: იპოვის პროდუქტებს SKU კოდის ნაწილობრივი დამთხვევით (დიდი/პატარა ასოების იგნორირებით)
+    // SKU კოდის ნაწილობრივი დამთხვევით (დიდი/პატარა ასოების იგნორირებით)
     List<Product> findBySkuContainingIgnoreCase(String sku);
 
     // იპოვის ყველა პროდუქტს ვოლტაჟის მიხედვით (მაგ: "M18")
@@ -25,18 +23,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // იპოვის პროდუქტებს კატეგორიის მიხედვით
     List<Product> findByCategory(Product.Category category);
 
-    // --- 🚨 ახალი დამატებული: მთავარი დინამიური ფილტრი 🚨 ---
+    // 🚨 შესწორებული ფილტრი: ფასი ამოვიღეთ SQL-დან, ვაფილტრავთ Controller-ში ფასდაკლების გამო 🚨
     @Query("SELECT p FROM Product p WHERE " +
             "(:category IS NULL OR p.category = :category) AND " +
-            "(:minPrice IS NULL OR p.price >= :minPrice) AND " +
-            "(:maxPrice IS NULL OR p.price <= :maxPrice) AND " +
             "(:voltage IS NULL OR p.voltage = :voltage) AND " +
             "(:isBrushless IS NULL OR p.isBrushless = :isBrushless) AND " +
             "(:isToolOnly IS NULL OR p.isToolOnly = :isToolOnly)")
     List<Product> findFilteredProducts(
             @Param("category") Product.Category category,
-            @Param("minPrice") Double minPrice,
-            @Param("maxPrice") Double maxPrice,
+            @Param("minPrice") Double minPrice,   // პარამეტრი რჩება მეთოდში თავსებადობისთვის
+            @Param("maxPrice") Double maxPrice,   // პარამეტრი რჩება მეთოდში თავსებადობისთვის
             @Param("voltage") String voltage,
             @Param("isBrushless") Boolean isBrushless,
             @Param("isToolOnly") Boolean isToolOnly
