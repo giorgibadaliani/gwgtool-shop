@@ -14,21 +14,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Optional<Product> findBySku(String sku);
 
-    // SKU კოდის ნაწილობრივი დამთხვევით (დიდი/პატარა ასოების იგნორირებით)
     List<Product> findBySkuContainingIgnoreCase(String sku);
 
-    // იპოვის ყველა პროდუქტს ვოლტაჟის მიხედვით (მაგ: "M18")
     List<Product> findByVoltage(String voltage);
 
-    // იპოვის პროდუქტებს კატეგორიის მიხედვით
     List<Product> findByCategory(Product.Category category);
 
-    // 🚨 შესწორებული ფილტრი
+    // 🚨 იდეალურად დაცული SQL შეკითხვა 🚨
     @Query("SELECT p FROM Product p WHERE " +
             "(:category IS NULL OR p.category = :category) AND " +
-            "(:voltage IS NULL OR p.voltage = :voltage) AND " +
-            "(:isBrushless IS NULL OR p.isBrushless = :isBrushless) AND " +
-            "(:isToolOnly IS NULL OR p.isToolOnly = :isToolOnly)")
+            "(:voltage IS NULL OR UPPER(p.voltage) = UPPER(:voltage)) AND " +
+            "(:isBrushless IS NULL OR COALESCE(p.isBrushless, false) = :isBrushless) AND " +
+            "(:isToolOnly IS NULL OR COALESCE(p.isToolOnly, false) = :isToolOnly)")
     List<Product> findFilteredProducts(
             @Param("category") Product.Category category,
             @Param("minPrice") Double minPrice,

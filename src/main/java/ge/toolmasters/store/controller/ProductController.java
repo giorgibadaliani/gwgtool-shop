@@ -32,14 +32,31 @@ public class ProductController {
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) String voltage,
-            @RequestParam(required = false) Boolean isBrushless,
-            @RequestParam(required = false) Boolean isToolOnly,
+            @RequestParam(required = false, value = "isBrushless") String isBrushlessStr, // ვიღებთ როგორც ტექსტს
+            @RequestParam(required = false, value = "isToolOnly") String isToolOnlyStr,   // ვიღებთ როგორც ტექსტს
             @RequestParam(required = false) String sku,
             Model model) {
 
-        // 💡 ბაგის შესწორება: თუ Voltage "ყველა" აირჩიეს, ვაქცევთ null-ად
+        // 💡 1. კატეგორიის დაზღვევა
+        if (category != null && (category.trim().isEmpty() || category.equalsIgnoreCase("ყველა") || category.equalsIgnoreCase("ALL"))) {
+            category = null;
+        }
+
+        // 💡 2. ვოლტაჟის დაზღვევა
         if (voltage != null && (voltage.trim().isEmpty() || voltage.equalsIgnoreCase("ყველა") || voltage.equalsIgnoreCase("ALL"))) {
             voltage = null;
+        }
+
+        // 💡 3. უნახშირო ძრავის დაზღვევა (იცავს ცარიელი სტრიქონების ერორისგან)
+        Boolean isBrushless = null;
+        if (isBrushlessStr != null && (isBrushlessStr.equalsIgnoreCase("true") || isBrushlessStr.equalsIgnoreCase("false"))) {
+            isBrushless = Boolean.parseBoolean(isBrushlessStr);
+        }
+
+        // 💡 4. კარკასის დაზღვევა
+        Boolean isToolOnly = null;
+        if (isToolOnlyStr != null && (isToolOnlyStr.equalsIgnoreCase("true") || isToolOnlyStr.equalsIgnoreCase("false"))) {
+            isToolOnly = Boolean.parseBoolean(isToolOnlyStr);
         }
 
         List<Product> products;
@@ -48,19 +65,18 @@ public class ProductController {
             products = productService.searchProductsBySku(sku);
         } else {
             Product.Category catEnum = null;
-            if (category != null && !category.isEmpty()) {
+            if (category != null) {
                 try {
                     catEnum = Product.Category.valueOf(category.toUpperCase());
                 } catch (IllegalArgumentException e) {
                 }
             }
-            // ბაზიდან მოაქვს გაფილტრული პროდუქტი
             products = productService.filterProducts(
                     catEnum, minPrice, maxPrice, voltage, isBrushless, isToolOnly
             );
         }
 
-        // ფასების ჭკვიანი ფილტრაცია
+        // ფასების ფილტრაცია
         if (minPrice != null || maxPrice != null) {
             products = products.stream().filter(product -> {
                 double actualPrice = (product.getDiscountPercentage() != null && product.getDiscountPercentage() > 0)
@@ -93,9 +109,7 @@ public class ProductController {
         if (product == null) {
             return "redirect:/";
         }
-
         List<ProductCharacteristic> characteristics = characteristicRepo.findBySku(product.getSku());
-
         model.addAttribute("product", product);
         model.addAttribute("characteristics", characteristics);
         model.addAttribute("cartCount", cartService.getItems().size());
@@ -105,13 +119,11 @@ public class ProductController {
     @GetMapping("/products")
     public String listProducts(@RequestParam(required = false) String sku, Model model) {
         List<Product> products;
-
         if (sku != null && !sku.trim().isEmpty()) {
             products = productService.searchProductsBySku(sku);
         } else {
             products = productService.getAllProducts();
         }
-
         model.addAttribute("products", products);
         model.addAttribute("searchedSku", sku);
         return "products";
@@ -133,7 +145,6 @@ public class ProductController {
             @ModelAttribute("product") Product product,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
 
-        // 💡 ჩეკბოქსების დაზღვევა (რომ null-ები არ შევიდეს ბაზაში)
         if (product.getHasBattery() == null) product.setHasBattery(false);
         if (product.getHasCharger() == null) product.setHasCharger(false);
         if (product.getHasCase() == null) product.setHasCase(false);
@@ -141,35 +152,21 @@ public class ProductController {
         if (product.getDiscountPercentage() != null && product.getDiscountPercentage() <= 0) {
             product.setDiscountPercentage(null);
         }
-
         if (product.getVoltage() != null && product.getVoltage().trim().isEmpty()) {
             product.setVoltage(null);
         }
 
-        // 💡 ძველი ველების შენარჩუნება რედაქტირებისას
         if (product.getId() != null) {
             Product existingProduct = productService.getProductById(product.getId());
             if (existingProduct != null) {
-                if (product.getSku() == null || product.getSku().trim().isEmpty()) {
-                    product.setSku(existingProduct.getSku());
-                }
-                if (product.getDescription() == null || product.getDescription().trim().isEmpty()) {
-                    product.setDescription(existingProduct.getDescription());
-                }
-                if (product.getStockQuantity() == null) {
-                    product.setStockQuantity(existingProduct.getStockQuantity());
-                }
-                if ((imageFile == null || imageFile.isEmpty()) &&
-                        (product.getImageUrl() == null || product.getImageUrl().trim().isEmpty())) {
+                if (product.getSku() == null || product.getSku().trim().isEmpty()) product.setSku(existingProduct.getSku());
+                if (product.getDescription() == null || product.getDescription().trim().isEmpty()) product.setDescription(existingProduct.getDescription());
+                if (product.getStockQuantity() == null) product.setStockQuantity(existingProduct.getStockQuantity());
+                if ((imageFile == null || imageFile.isEmpty()) && (product.getImageUrl() == null || product.getImageUrl().trim().isEmpty())) {
                     product.setImageUrl(existingProduct.getImageUrl());
                 }
-                // ვიცავთ ფარულ ველებს გაქრობისგან
-                if (product.getIsToolOnly() == null) {
-                    product.setIsToolOnly(existingProduct.getIsToolOnly());
-                }
-                if (product.getIsBrushless() == null) {
-                    product.setIsBrushless(existingProduct.getIsBrushless());
-                }
+                if (product.getIsToolOnly() == null) product.setIsToolOnly(existingProduct.getIsToolOnly());
+                if (product.getIsBrushless() == null) product.setIsBrushless(existingProduct.getIsBrushless());
             }
         }
 
@@ -183,7 +180,6 @@ public class ProductController {
         }
 
         productService.saveProduct(product);
-
         return "redirect:/products";
     }
 
