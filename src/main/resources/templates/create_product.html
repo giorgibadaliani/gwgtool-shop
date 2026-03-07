@@ -121,6 +121,38 @@
                             </div>
                         </div>
 
+                        <div class="row mt-3 mb-3 border p-3 rounded bg-light">
+                            <h5>კომპლექტაცია (რა მოყვება ყუთში)</h5>
+
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="hasBattery" th:field="*{hasBattery}">
+                                    <label class="form-check-label fw-bold text-success" for="hasBattery">
+                                        🔋 მოყვება ელემენტი
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="hasCharger" th:field="*{hasCharger}">
+                                    <label class="form-check-label fw-bold text-primary" for="hasCharger">
+                                        🔌 მოყვება დამტენი
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="hasCase" th:field="*{hasCase}">
+                                    <label class="form-check-label fw-bold text-warning" for="hasCase">
+                                        🧰 მოყვება ქეისი / ჩანთა
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">პროდუქტის მახასიათებლები (აღწერა)</label>
                             <textarea name="description" th:text="${product.description}" class="form-control" rows="5" placeholder="ჩაწერეთ ტექნიკური მახასიათებლები..."></textarea>

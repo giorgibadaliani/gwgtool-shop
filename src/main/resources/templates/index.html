@@ -240,6 +240,35 @@
                   </div>
                 </div>
 
+
+                <!-- კომპლექტაციის სტიკერები -->
+                <div class="position-absolute" style="top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px;">
+
+                  <!-- თუ აქვს ბატარეა -->
+                  <span th:if="${product.hasBattery}" class="badge bg-success shadow-sm" title="მოყვება ელემენტი">
+        <i class="fas fa-battery-full"></i> 🔋
+    </span>
+
+                  <!-- თუ აქვს დამტენი -->
+                  <span th:if="${product.hasCharger}" class="badge bg-primary shadow-sm" title="მოყვება დამტენი">
+        <i class="fas fa-plug"></i> 🔌
+    </span>
+
+                  <!-- თუ აქვს ქეისი -->
+                  <span th:if="${product.hasCase}" class="badge bg-warning text-dark shadow-sm" title="მოყვება ქეისი">
+        <i class="fas fa-toolbox"></i> 🧰
+    </span>
+
+                  <!-- თუ მხოლოდ კარკასია (ანუ არც ელემენტი აქვს, არც დამტენი) -->
+                  <span th:if="${!product.hasBattery && !product.hasCharger && !product.hasCase}" class="badge bg-secondary shadow-sm" title="მხოლოდ ხელსაწყო">
+        კარკასი
+    </span>
+
+                </div>
+
+
+
+
                 <!-- მარაგის ლოგიკა -->
                 <div class="mb-3">
                   <small th:if="${product.stockQuantity != null and product.stockQuantity > 5}" class="text-success fw-semibold">✅ მარაგშია</small>
