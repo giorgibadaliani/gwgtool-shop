@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,34 +38,42 @@ public class ProductController {
             @RequestParam(required = false) String sku,
             Model model) {
 
-        List<Product> products;
+        // 🔥 1. უხეში ძალა: ვიღებთ ყველა პროდუქტს, რაც კი არსებობს!
+        List<Product> products = productService.getAllProducts();
 
-        // 1. ბაზიდან მოგვაქვს აბსოლუტურად ყველა პროდუქტი (რომ არაფერი დაიმალოს)
-        if (sku != null && !sku.trim().isEmpty()) {
-            products = productService.searchProductsBySku(sku);
-        } else {
-            products = productService.getAllProducts(); // აქ მოდის 100% ყველა ნივთი
+        // თუ რატომღაც null მოვიდა, ცარიელ ლისტად ვაქცევთ რომ არ გაჭედოს
+        if (products == null) {
+            products = new ArrayList<>();
         }
 
-        // 2. ულტრა-დაცული ფილტრაცია პირდაპირ Java-ში
-        if (products != null && (sku == null || sku.trim().isEmpty())) {
+        // 2. ძებნა SKU-თი (თუ მითითებულია)
+        if (sku != null && !sku.trim().isEmpty()) {
+            final String searchSku = sku.trim().toLowerCase();
+            products = products.stream()
+                    .filter(p -> p.getSku() != null && p.getSku().toLowerCase().contains(searchSku))
+                    .collect(Collectors.toList());
+        } else {
+            // 3. თუ SKU არ არის, ვაკეთებთ ფილტრაციას
 
             // კატეგორიის ფილტრი
             if (category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("ყველა") && !category.equalsIgnoreCase("ALL")) {
                 try {
                     Product.Category catEnum = Product.Category.valueOf(category.toUpperCase());
-                    products = products.stream().filter(p -> p.getCategory() == catEnum).collect(Collectors.toList());
+                    products = products.stream()
+                            .filter(p -> p.getCategory() != null && p.getCategory() == catEnum)
+                            .collect(Collectors.toList());
                 } catch (IllegalArgumentException e) { }
             }
 
-            // ვოლტაჟის ფილტრი (ასოების ზომის იგნორირებით)
+            // ვოლტაჟის ფილტრი
             if (voltage != null && !voltage.trim().isEmpty() && !voltage.equalsIgnoreCase("ყველა") && !voltage.equalsIgnoreCase("ALL")) {
+                final String finalVoltage = voltage.trim();
                 products = products.stream()
-                        .filter(p -> p.getVoltage() != null && p.getVoltage().equalsIgnoreCase(voltage.trim()))
+                        .filter(p -> p.getVoltage() != null && p.getVoltage().equalsIgnoreCase(finalVoltage))
                         .collect(Collectors.toList());
             }
 
-            // უნახშირო ძრავის (Brushless) ფილტრი
+            // უნახშირო (Brushless) ფილტრი
             if (isBrushlessStr != null && (isBrushlessStr.equalsIgnoreCase("true") || isBrushlessStr.equalsIgnoreCase("false"))) {
                 boolean searchBrushless = Boolean.parseBoolean(isBrushlessStr);
                 products = products.stream().filter(p -> {
@@ -73,7 +82,7 @@ public class ProductController {
                 }).collect(Collectors.toList());
             }
 
-            // კომპლექტაციის (Tool Only) ფილტრი
+            // კარკასის (Tool Only) ფილტრი
             if (isToolOnlyStr != null && (isToolOnlyStr.equalsIgnoreCase("true") || isToolOnlyStr.equalsIgnoreCase("false"))) {
                 boolean searchToolOnly = Boolean.parseBoolean(isToolOnlyStr);
                 products = products.stream().filter(p -> {
@@ -82,9 +91,11 @@ public class ProductController {
                 }).collect(Collectors.toList());
             }
 
-            // ფასების ფილტრი აქციის გათვალისწინებით
+            // ფასების ფილტრი
             if (minPrice != null || maxPrice != null) {
                 products = products.stream().filter(p -> {
+                    if (p.getPrice() == null) return false; // თუ ფასი საერთოდ არ უწერია, ვმალავთ რომ არ გაჭედოს
+
                     double actualPrice = (p.getDiscountPercentage() != null && p.getDiscountPercentage() > 0)
                             ? p.getDiscountedPrice()
                             : p.getPrice();
@@ -97,18 +108,19 @@ public class ProductController {
             }
         }
 
-        // ვამზადებთ Boolean-ებს HTML-ისთვის, რომ ძებნის მერე მონიშნული დარჩეს
+        // HTML-ისთვის Boolean მნიშვნელობების მომზადება
         Boolean parsedBrushless = null;
         if (isBrushlessStr != null && (isBrushlessStr.equalsIgnoreCase("true") || isBrushlessStr.equalsIgnoreCase("false"))) {
             parsedBrushless = Boolean.parseBoolean(isBrushlessStr);
         }
+
         Boolean parsedToolOnly = null;
         if (isToolOnlyStr != null && (isToolOnlyStr.equalsIgnoreCase("true") || isToolOnlyStr.equalsIgnoreCase("false"))) {
             parsedToolOnly = Boolean.parseBoolean(isToolOnlyStr);
         }
 
         model.addAttribute("products", products);
-        model.addAttribute("cartCount", cartService.getItems().size());
+        model.addAttribute("cartCount", cartService.getItems() != null ? cartService.getItems().size() : 0);
         model.addAttribute("selectedCategory", category);
         model.addAttribute("minPrice", minPrice);
         model.addAttribute("maxPrice", maxPrice);

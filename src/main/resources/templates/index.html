@@ -19,7 +19,7 @@
       font-weight: 500;
     }
     .category-btn:hover {
-      background-color: #dc3545; /* Milwaukee Red */
+      background-color: #dc3545;
       color: white;
       border-color: #dc3545;
       transform: translateY(-2px);
@@ -122,7 +122,6 @@
     <!-- მარცხენა სვეტი: ძებნა და ფილტრაცია -->
     <div class="col-md-3 mb-4">
 
-      <!-- ✅ ახალი: პროდუქტის ძებნა SKU კოდით -->
       <div class="search-panel mb-4">
         <h5 class="fw-bold mb-3"><i class="fas fa-search"></i> სწრაფი ძებნა</h5>
         <form action="/" method="GET">
@@ -130,14 +129,12 @@
             <input type="text" name="sku" class="form-control form-control-sm" placeholder="ჩაწერეთ SKU..." th:value="${searchedSku}">
             <button class="btn btn-primary btn-sm" type="submit">ძებნა</button>
           </div>
-          <!-- გასუფთავების ღილაკი მხოლოდ მაშინ, როცა ვეძებთ -->
           <div class="mt-2 text-end" th:if="${searchedSku != null and searchedSku != ''}">
             <a href="/" class="text-danger small text-decoration-none"><i class="fas fa-times-circle"></i> ძებნის გაუქმება</a>
           </div>
         </form>
       </div>
 
-      <!-- ფილტრაციის პანელი -->
       <div class="filter-panel">
         <h5 class="fw-bold mb-3"><i class="fas fa-filter"></i> ფილტრი</h5>
 
@@ -192,7 +189,6 @@
     <!-- პროდუქტების სია -->
     <div class="col-md-9">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <!-- დინამიური სათაური (თუ ვეძებთ SKU-ით, შესაბამის ტექსტს დაწერს) -->
         <h2 class="m-0">
           <span th:if="${searchedSku != null and searchedSku != ''}" th:text="'ძიების შედეგი: ' + ${searchedSku}"></span>
           <span th:if="${searchedSku == null or searchedSku == ''}" th:text="${selectedCategory != null ? 'კატეგორია: ' + selectedCategory : 'ყველა ინსტრუმენტი'}"></span>
@@ -211,7 +207,6 @@
         <div class="col" th:each="product : ${products}">
           <div class="card h-100 product-card border-0 shadow-sm position-relative">
 
-            <!-- 🌟 აქციის Label ბარათის კუთხეში (თუ აქვს ფასდაკლება) -->
             <div th:if="${product.discountPercentage != null and product.discountPercentage > 0}"
                  class="position-absolute top-0 end-0 bg-danger text-white px-2 py-1 m-2 rounded fw-bold shadow-sm" style="z-index: 10;">
               <span th:text="'-' + ${product.discountPercentage} + '%'">-10%</span>
@@ -228,49 +223,39 @@
 
               <div class="mt-auto">
 
-                <!-- 🌟 ფასის ლოგიკა (აქციით და აქციის გარეშე) 🌟 -->
+                <!-- ფასის ლოგიკა -->
                 <div class="mb-2">
-                  <!-- თუ აქცია არ არის -->
                   <h4 class="text-danger fw-bold m-0" th:if="${product.discountPercentage == null or product.discountPercentage <= 0}" th:text="${product.price} + ' ₾'">0 ₾</h4>
 
-                  <!-- თუ აქცია არის -->
                   <div th:if="${product.discountPercentage != null and product.discountPercentage > 0}">
                     <h4 class="text-danger fw-bold m-0" th:text="${product.getDiscountedPrice()} + ' ₾'">630 ₾</h4>
                     <small class="text-muted text-decoration-line-through" th:text="${product.price} + ' ₾'">700 ₾</small>
                   </div>
                 </div>
 
+                <!-- 🚀 შეკეთებული კომპლექტაციის სტიკერები (Null-ისგან დაცული) 🚀 -->
+                <div class="position-absolute" style="top: 10px; left: 10px; display: flex; flex-direction: column; gap: 5px;">
 
-                <!-- კომპლექტაციის სტიკერები -->
-                <div class="position-absolute" style="top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px;">
+                  <span th:if="${product.hasBattery != null and product.hasBattery == true}" class="badge bg-success shadow-sm" title="მოყვება ელემენტი">
+                    <i class="fas fa-battery-full"></i> 🔋
+                  </span>
 
-                  <!-- თუ აქვს ბატარეა -->
-                  <span th:if="${product.hasBattery}" class="badge bg-success shadow-sm" title="მოყვება ელემენტი">
-        <i class="fas fa-battery-full"></i> 🔋
-    </span>
+                  <span th:if="${product.hasCharger != null and product.hasCharger == true}" class="badge bg-primary shadow-sm" title="მოყვება დამტენი">
+                    <i class="fas fa-plug"></i> 🔌
+                  </span>
 
-                  <!-- თუ აქვს დამტენი -->
-                  <span th:if="${product.hasCharger}" class="badge bg-primary shadow-sm" title="მოყვება დამტენი">
-        <i class="fas fa-plug"></i> 🔌
-    </span>
+                  <span th:if="${product.hasCase != null and product.hasCase == true}" class="badge bg-warning text-dark shadow-sm" title="მოყვება ქეისი">
+                    <i class="fas fa-toolbox"></i> 🧰
+                  </span>
 
-                  <!-- თუ აქვს ქეისი -->
-                  <span th:if="${product.hasCase}" class="badge bg-warning text-dark shadow-sm" title="მოყვება ქეისი">
-        <i class="fas fa-toolbox"></i> 🧰
-    </span>
-
-                  <!-- თუ მხოლოდ კარკასია (ანუ არც ელემენტი აქვს, არც დამტენი) -->
-                  <span th:if="${!product.hasBattery && !product.hasCharger && !product.hasCase}" class="badge bg-secondary shadow-sm" title="მხოლოდ ხელსაწყო">
-        კარკასი
-    </span>
+                  <span th:if="${(product.hasBattery == null or product.hasBattery == false) and (product.hasCharger == null or product.hasCharger == false) and (product.hasCase == null or product.hasCase == false)}" class="badge bg-secondary shadow-sm" title="მხოლოდ ხელსაწყო">
+                    კარკასი
+                  </span>
 
                 </div>
 
-
-
-
                 <!-- მარაგის ლოგიკა -->
-                <div class="mb-3">
+                <div class="mb-3 mt-2">
                   <small th:if="${product.stockQuantity != null and product.stockQuantity > 5}" class="text-success fw-semibold">✅ მარაგშია</small>
                   <small th:if="${product.stockQuantity != null and product.stockQuantity <= 5 and product.stockQuantity > 0}" class="text-warning fw-semibold">
                     ⚠️ მარაგი მცირეა (<span th:text="${product.stockQuantity}"></span> ც.)
