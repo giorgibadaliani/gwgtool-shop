@@ -32,54 +32,79 @@ public class ProductController {
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) String voltage,
-            @RequestParam(required = false) Boolean isBrushless,
-            @RequestParam(required = false) Boolean isToolOnly,
+            @RequestParam(required = false, value = "isBrushless") String isBrushlessStr,
+            @RequestParam(required = false, value = "isToolOnly") String isToolOnlyStr,
             @RequestParam(required = false) String sku,
             Model model) {
 
-        // 💡 1. კატეგორიის დაზღვევა
-        if (category != null && (category.trim().isEmpty() || category.equalsIgnoreCase("ყველა") || category.equalsIgnoreCase("ALL"))) {
-            category = null;
-        }
-
-        // 💡 2. ვოლტაჟის დაზღვევა და ასოების გადიდება (SQL-ში ერორი რომ არ ამოაგდოს)
-        if (voltage != null) {
-            if (voltage.trim().isEmpty() || voltage.equalsIgnoreCase("ყველა") || voltage.equalsIgnoreCase("ALL")) {
-                voltage = null;
-            } else {
-                voltage = voltage.toUpperCase(); // "m12" ავტომატურად გახდება "M12"
-            }
-        }
-
         List<Product> products;
 
+        // 1. ბაზიდან მოგვაქვს აბსოლუტურად ყველა პროდუქტი (რომ არაფერი დაიმალოს)
         if (sku != null && !sku.trim().isEmpty()) {
             products = productService.searchProductsBySku(sku);
         } else {
-            Product.Category catEnum = null;
-            if (category != null) {
-                try {
-                    catEnum = Product.Category.valueOf(category.toUpperCase());
-                } catch (IllegalArgumentException e) {
-                }
-            }
-            products = productService.filterProducts(
-                    catEnum, minPrice, maxPrice, voltage, isBrushless, isToolOnly
-            );
+            products = productService.getAllProducts(); // აქ მოდის 100% ყველა ნივთი
         }
 
-        // ფასების ფილტრაცია
-        if (minPrice != null || maxPrice != null) {
-            products = products.stream().filter(product -> {
-                double actualPrice = (product.getDiscountPercentage() != null && product.getDiscountPercentage() > 0)
-                        ? product.getDiscountedPrice()
-                        : product.getPrice();
+        // 2. ულტრა-დაცული ფილტრაცია პირდაპირ Java-ში
+        if (products != null && (sku == null || sku.trim().isEmpty())) {
 
-                boolean passesMin = (minPrice == null || actualPrice >= minPrice);
-                boolean passesMax = (maxPrice == null || actualPrice <= maxPrice);
+            // კატეგორიის ფილტრი
+            if (category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("ყველა") && !category.equalsIgnoreCase("ALL")) {
+                try {
+                    Product.Category catEnum = Product.Category.valueOf(category.toUpperCase());
+                    products = products.stream().filter(p -> p.getCategory() == catEnum).collect(Collectors.toList());
+                } catch (IllegalArgumentException e) { }
+            }
 
-                return passesMin && passesMax;
-            }).collect(Collectors.toList());
+            // ვოლტაჟის ფილტრი (ასოების ზომის იგნორირებით)
+            if (voltage != null && !voltage.trim().isEmpty() && !voltage.equalsIgnoreCase("ყველა") && !voltage.equalsIgnoreCase("ALL")) {
+                products = products.stream()
+                        .filter(p -> p.getVoltage() != null && p.getVoltage().equalsIgnoreCase(voltage.trim()))
+                        .collect(Collectors.toList());
+            }
+
+            // უნახშირო ძრავის (Brushless) ფილტრი
+            if (isBrushlessStr != null && (isBrushlessStr.equalsIgnoreCase("true") || isBrushlessStr.equalsIgnoreCase("false"))) {
+                boolean searchBrushless = Boolean.parseBoolean(isBrushlessStr);
+                products = products.stream().filter(p -> {
+                    boolean actual = (p.getIsBrushless() != null) ? p.getIsBrushless() : false;
+                    return actual == searchBrushless;
+                }).collect(Collectors.toList());
+            }
+
+            // კომპლექტაციის (Tool Only) ფილტრი
+            if (isToolOnlyStr != null && (isToolOnlyStr.equalsIgnoreCase("true") || isToolOnlyStr.equalsIgnoreCase("false"))) {
+                boolean searchToolOnly = Boolean.parseBoolean(isToolOnlyStr);
+                products = products.stream().filter(p -> {
+                    boolean actual = (p.getIsToolOnly() != null) ? p.getIsToolOnly() : false;
+                    return actual == searchToolOnly;
+                }).collect(Collectors.toList());
+            }
+
+            // ფასების ფილტრი აქციის გათვალისწინებით
+            if (minPrice != null || maxPrice != null) {
+                products = products.stream().filter(p -> {
+                    double actualPrice = (p.getDiscountPercentage() != null && p.getDiscountPercentage() > 0)
+                            ? p.getDiscountedPrice()
+                            : p.getPrice();
+
+                    boolean passesMin = (minPrice == null || actualPrice >= minPrice);
+                    boolean passesMax = (maxPrice == null || actualPrice <= maxPrice);
+
+                    return passesMin && passesMax;
+                }).collect(Collectors.toList());
+            }
+        }
+
+        // ვამზადებთ Boolean-ებს HTML-ისთვის, რომ ძებნის მერე მონიშნული დარჩეს
+        Boolean parsedBrushless = null;
+        if (isBrushlessStr != null && (isBrushlessStr.equalsIgnoreCase("true") || isBrushlessStr.equalsIgnoreCase("false"))) {
+            parsedBrushless = Boolean.parseBoolean(isBrushlessStr);
+        }
+        Boolean parsedToolOnly = null;
+        if (isToolOnlyStr != null && (isToolOnlyStr.equalsIgnoreCase("true") || isToolOnlyStr.equalsIgnoreCase("false"))) {
+            parsedToolOnly = Boolean.parseBoolean(isToolOnlyStr);
         }
 
         model.addAttribute("products", products);
@@ -88,8 +113,8 @@ public class ProductController {
         model.addAttribute("minPrice", minPrice);
         model.addAttribute("maxPrice", maxPrice);
         model.addAttribute("selectedVoltage", voltage);
-        model.addAttribute("selectedBrushless", isBrushless);
-        model.addAttribute("selectedToolOnly", isToolOnly);
+        model.addAttribute("selectedBrushless", parsedBrushless);
+        model.addAttribute("selectedToolOnly", parsedToolOnly);
         model.addAttribute("searchedSku", sku);
 
         return "index";
