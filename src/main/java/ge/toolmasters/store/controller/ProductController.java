@@ -32,8 +32,8 @@ public class ProductController {
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) String voltage,
-            @RequestParam(required = false, value = "isBrushless") String isBrushlessStr, // ვიღებთ როგორც ტექსტს
-            @RequestParam(required = false, value = "isToolOnly") String isToolOnlyStr,   // ვიღებთ როგორც ტექსტს
+            @RequestParam(required = false) Boolean isBrushless,
+            @RequestParam(required = false) Boolean isToolOnly,
             @RequestParam(required = false) String sku,
             Model model) {
 
@@ -42,21 +42,13 @@ public class ProductController {
             category = null;
         }
 
-        // 💡 2. ვოლტაჟის დაზღვევა
-        if (voltage != null && (voltage.trim().isEmpty() || voltage.equalsIgnoreCase("ყველა") || voltage.equalsIgnoreCase("ALL"))) {
-            voltage = null;
-        }
-
-        // 💡 3. უნახშირო ძრავის დაზღვევა (იცავს ცარიელი სტრიქონების ერორისგან)
-        Boolean isBrushless = null;
-        if (isBrushlessStr != null && (isBrushlessStr.equalsIgnoreCase("true") || isBrushlessStr.equalsIgnoreCase("false"))) {
-            isBrushless = Boolean.parseBoolean(isBrushlessStr);
-        }
-
-        // 💡 4. კარკასის დაზღვევა
-        Boolean isToolOnly = null;
-        if (isToolOnlyStr != null && (isToolOnlyStr.equalsIgnoreCase("true") || isToolOnlyStr.equalsIgnoreCase("false"))) {
-            isToolOnly = Boolean.parseBoolean(isToolOnlyStr);
+        // 💡 2. ვოლტაჟის დაზღვევა და ასოების გადიდება (SQL-ში ერორი რომ არ ამოაგდოს)
+        if (voltage != null) {
+            if (voltage.trim().isEmpty() || voltage.equalsIgnoreCase("ყველა") || voltage.equalsIgnoreCase("ALL")) {
+                voltage = null;
+            } else {
+                voltage = voltage.toUpperCase(); // "m12" ავტომატურად გახდება "M12"
+            }
         }
 
         List<Product> products;

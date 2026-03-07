@@ -20,12 +20,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByCategory(Product.Category category);
 
-    // 🚨 იდეალურად დაცული SQL შეკითხვა 🚨
+    // 🚨 100%-ით უსაფრთხო და ბაგებისგან დაზღვეული SQL 🚨
     @Query("SELECT p FROM Product p WHERE " +
+            "(:minPrice IS NULL OR 1=1) AND " +
+            "(:maxPrice IS NULL OR 1=1) AND " +
             "(:category IS NULL OR p.category = :category) AND " +
-            "(:voltage IS NULL OR UPPER(p.voltage) = UPPER(:voltage)) AND " +
-            "(:isBrushless IS NULL OR COALESCE(p.isBrushless, false) = :isBrushless) AND " +
-            "(:isToolOnly IS NULL OR COALESCE(p.isToolOnly, false) = :isToolOnly)")
+            "(:voltage IS NULL OR p.voltage = :voltage) AND " +
+            "(:isBrushless IS NULL OR p.isBrushless = :isBrushless OR (p.isBrushless IS NULL AND :isBrushless = false)) AND " +
+            "(:isToolOnly IS NULL OR p.isToolOnly = :isToolOnly OR (p.isToolOnly IS NULL AND :isToolOnly = false))")
     List<Product> findFilteredProducts(
             @Param("category") Product.Category category,
             @Param("minPrice") Double minPrice,
