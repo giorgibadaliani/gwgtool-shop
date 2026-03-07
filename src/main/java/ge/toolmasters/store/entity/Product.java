@@ -58,6 +58,16 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private Category category;
 
+    // --- 🚨 ახალი: კომპლექტაციის ველები 🚨 ---
+    @Column(name = "has_battery")
+    private Boolean hasBattery = false;
+
+    @Column(name = "has_charger")
+    private Boolean hasCharger = false;
+
+    @Column(name = "has_case")
+    private Boolean hasCase = false;
+
 
     // --- ქვემოთ დამატებულია ხელით დაწერილი Getters და Setters დაზღვევისთვის ---
     // ეს ხსნის ყველა "Cannot resolve method" ტიპის ერორს
@@ -102,6 +112,31 @@ public class Product {
 
     public void setDiscountPercentage(Integer discountPercentage) {
         this.discountPercentage = discountPercentage;
+    }
+
+    // --- 🚨 ახალი: კომპლექტაციის Getters და Setters 🚨 ---
+    public Boolean getHasBattery() {
+        return hasBattery;
+    }
+
+    public void setHasBattery(Boolean hasBattery) {
+        this.hasBattery = hasBattery;
+    }
+
+    public Boolean getHasCharger() {
+        return hasCharger;
+    }
+
+    public void setHasCharger(Boolean hasCharger) {
+        this.hasCharger = hasCharger;
+    }
+
+    public Boolean getHasCase() {
+        return hasCase;
+    }
+
+    public void setHasCase(Boolean hasCase) {
+        this.hasCase = hasCase;
     }
 
     // 🌟 ჭკვიანი მეთოდი, რომელიც ავტომატურად ითვლის ფასდაკლებულ თანხას!
