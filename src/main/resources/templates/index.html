@@ -237,19 +237,19 @@
                 <div class="position-absolute" style="top: 10px; left: 10px; display: flex; flex-direction: column; gap: 5px;">
 
                   <span th:if="${product.hasBattery != null and product.hasBattery == true}" class="badge bg-success shadow-sm" title="მოყვება ელემენტი">
-                    <i class="fas fa-battery-full"></i> 🔋
+                    <i class="fas fa-battery-full"></i> მოყვება ბატარეა
                   </span>
 
                   <span th:if="${product.hasCharger != null and product.hasCharger == true}" class="badge bg-primary shadow-sm" title="მოყვება დამტენი">
-                    <i class="fas fa-plug"></i> 🔌
+                    <i class="fas fa-plug"></i> მოყვება დამტენი
                   </span>
 
                   <span th:if="${product.hasCase != null and product.hasCase == true}" class="badge bg-warning text-dark shadow-sm" title="მოყვება ქეისი">
-                    <i class="fas fa-toolbox"></i> 🧰
+                    <i class="fas fa-toolbox"></i> მოყვება ქეისი
                   </span>
 
                   <span th:if="${(product.hasBattery == null or product.hasBattery == false) and (product.hasCharger == null or product.hasCharger == false) and (product.hasCase == null or product.hasCase == false)}" class="badge bg-secondary shadow-sm" title="მხოლოდ ხელსაწყო">
-                    კარკასი
+                    მხოლოდ ხელსაწყო
                   </span>
 
                 </div>
