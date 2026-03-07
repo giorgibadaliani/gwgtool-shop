@@ -23,7 +23,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // იპოვის პროდუქტებს კატეგორიის მიხედვით
     List<Product> findByCategory(Product.Category category);
 
-    // 🚨 შესწორებული ფილტრი: ფასი ამოვიღეთ SQL-დან, ვაფილტრავთ Controller-ში ფასდაკლების გამო 🚨
+    // 🚨 შესწორებული ფილტრი
     @Query("SELECT p FROM Product p WHERE " +
             "(:category IS NULL OR p.category = :category) AND " +
             "(:voltage IS NULL OR p.voltage = :voltage) AND " +
@@ -31,8 +31,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "(:isToolOnly IS NULL OR p.isToolOnly = :isToolOnly)")
     List<Product> findFilteredProducts(
             @Param("category") Product.Category category,
-            @Param("minPrice") Double minPrice,   // პარამეტრი რჩება მეთოდში თავსებადობისთვის
-            @Param("maxPrice") Double maxPrice,   // პარამეტრი რჩება მეთოდში თავსებადობისთვის
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice,
             @Param("voltage") String voltage,
             @Param("isBrushless") Boolean isBrushless,
             @Param("isToolOnly") Boolean isToolOnly

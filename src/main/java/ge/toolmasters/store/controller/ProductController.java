@@ -37,9 +37,8 @@ public class ProductController {
             @RequestParam(required = false) String sku,
             Model model) {
 
-        // 💡 1. ბაგის შესწორება: თუ Voltage "ყველა" აირჩიეს, HTML ცარიელ "" აგზავნის.
-        // SQL-ს უჭირს ამის გაგება, ამიტომ null-ად ვაქცევთ.
-        if (voltage != null && voltage.trim().isEmpty()) {
+        // 💡 ბაგის შესწორება: თუ Voltage "ყველა" აირჩიეს, ვაქცევთ null-ად
+        if (voltage != null && (voltage.trim().isEmpty() || voltage.equalsIgnoreCase("ყველა") || voltage.equalsIgnoreCase("ALL"))) {
             voltage = null;
         }
 
@@ -55,16 +54,15 @@ public class ProductController {
                 } catch (IllegalArgumentException e) {
                 }
             }
-            // ბაზიდან მოაქვს ყველა გაფილტრული პროდუქტი (ფასის გარდა)
+            // ბაზიდან მოაქვს გაფილტრული პროდუქტი
             products = productService.filterProducts(
                     catEnum, minPrice, maxPrice, voltage, isBrushless, isToolOnly
             );
         }
 
-        // 💡 2. ბაგის შესწორება: ფასების ფილტრაცია აქციების გათვალისწინებით
+        // ფასების ჭკვიანი ფილტრაცია
         if (minPrice != null || maxPrice != null) {
             products = products.stream().filter(product -> {
-                // ვიღებთ რეალურ ფასს (თუ აქცია აქვს - ფასდაკლებულს, თუ არა - ჩვეულებრივს)
                 double actualPrice = (product.getDiscountPercentage() != null && product.getDiscountPercentage() > 0)
                         ? product.getDiscountedPrice()
                         : product.getPrice();
@@ -135,6 +133,11 @@ public class ProductController {
             @ModelAttribute("product") Product product,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
 
+        // 💡 ჩეკბოქსების დაზღვევა (რომ null-ები არ შევიდეს ბაზაში)
+        if (product.getHasBattery() == null) product.setHasBattery(false);
+        if (product.getHasCharger() == null) product.setHasCharger(false);
+        if (product.getHasCase() == null) product.setHasCase(false);
+
         if (product.getDiscountPercentage() != null && product.getDiscountPercentage() <= 0) {
             product.setDiscountPercentage(null);
         }
@@ -143,6 +146,7 @@ public class ProductController {
             product.setVoltage(null);
         }
 
+        // 💡 ძველი ველების შენარჩუნება რედაქტირებისას
         if (product.getId() != null) {
             Product existingProduct = productService.getProductById(product.getId());
             if (existingProduct != null) {
@@ -158,6 +162,13 @@ public class ProductController {
                 if ((imageFile == null || imageFile.isEmpty()) &&
                         (product.getImageUrl() == null || product.getImageUrl().trim().isEmpty())) {
                     product.setImageUrl(existingProduct.getImageUrl());
+                }
+                // ვიცავთ ფარულ ველებს გაქრობისგან
+                if (product.getIsToolOnly() == null) {
+                    product.setIsToolOnly(existingProduct.getIsToolOnly());
+                }
+                if (product.getIsBrushless() == null) {
+                    product.setIsBrushless(existingProduct.getIsBrushless());
                 }
             }
         }
@@ -185,61 +196,7 @@ public class ProductController {
 
     @GetMapping("/products/delete/{id}")
     public String deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);                                               
+        productService.deleteProduct(id);
         return "redirect:/products";
     }
-
-    // 🚀 კომპლექტაციის ავტომატური შემვსები სკრიპტი 🚀
-    @GetMapping("/admin/update-kits")
-    @ResponseBody // ეს უზრუნველყოფს, რომ პირდაპირ ტექსტი დაგვიბრუნოს ეკრანზე და არა HTML გვერდი ეძებოს
-    public String updateKitsAutomatically() {
-        List<Product> products = productService.getAllProducts();
-        int updatedCount = 0;
-
-        for (Product p : products) {
-            // 1. გამოვრიცხოთ LIGHTING
-            if (p.getCategory() == Product.Category.LIGHTING) continue;
-
-            // 2. ვამოწმებთ ვოლტაჟს
-            String v = p.getVoltage();
-            if (v == null || !(v.equalsIgnoreCase("M12") || v.equalsIgnoreCase("M18") || v.equalsIgnoreCase("230V"))) {
-                continue; // თუ სხვა ვოლტაჟია (ან ცარიელია), ვტოვებთ ხელუხლებლად
-            }
-
-            // 3. ვაერთიანებთ სახელს და SKU-ს და ვაქცევთ დიდ ასოებად ძებნის გასამარტივებლად
-            String textToAnalyze = (p.getName() + " " + (p.getSku() != null ? p.getSku() : "")).toUpperCase();
-            boolean changed = false;
-
-            // ლოგიკა Milwaukee-ს კოდებისთვის ტირეს (-) მიხედვით:
-            if (textToAnalyze.contains("-0X") || textToAnalyze.contains("-0C")) {
-                // მხოლოდ ხელსაწყო + ქეისი (მაგ: FPD2-0X)
-                p.setHasBattery(false); p.setHasCharger(false); p.setHasCase(true); p.setIsToolOnly(true);
-                changed = true;
-            }
-            else if (textToAnalyze.matches(".*-0\\b.*") || textToAnalyze.endsWith("-0")) {
-                // მხოლოდ ხელსაწყო, ქეისის გარეშე (მაგ: FPD2-0)
-                p.setHasBattery(false); p.setHasCharger(false); p.setHasCase(false); p.setIsToolOnly(true);
-                changed = true;
-            }
-            else if (textToAnalyze.matches(".*-[1-9]\\d*[XC].*")) {
-                // ელემენტები + დამტენი + ქეისი (მაგ: -502X, -402C, -202X)
-                p.setHasBattery(true); p.setHasCharger(true); p.setHasCase(true); p.setIsToolOnly(false);
-                changed = true;
-            }
-            else if (textToAnalyze.matches(".*-[1-9]\\d*\\b.*")) {
-                // ელემენტები + დამტენი (მაგ: -502, ქეისის გარეშე - იშვიათია, მაგრამ დავაზღვიოთ)
-                p.setHasBattery(true); p.setHasCharger(true); p.setHasCase(false); p.setIsToolOnly(false);
-                changed = true;
-            }
-
-            // თუ რომელიმე პირობა დააკმაყოფილა, ვინახავთ ბაზაში
-            if (changed) {
-                productService.saveProduct(p);
-                updatedCount++;
-            }
-        }
-        return "გილოცავ! წარმატებით განახლდა " + updatedCount + " პროდუქტის კომპლექტაცია! 🚀 ახლა შეგიძლია დაბრუნდე მთავარ გვერდზე.";
-    }
-
-
 }
