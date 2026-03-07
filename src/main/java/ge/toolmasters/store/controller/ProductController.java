@@ -188,4 +188,58 @@ public class ProductController {
         productService.deleteProduct(id);                                               
         return "redirect:/products";
     }
+
+    // 🚀 კომპლექტაციის ავტომატური შემვსები სკრიპტი 🚀
+    @GetMapping("/admin/update-kits")
+    @ResponseBody // ეს უზრუნველყოფს, რომ პირდაპირ ტექსტი დაგვიბრუნოს ეკრანზე და არა HTML გვერდი ეძებოს
+    public String updateKitsAutomatically() {
+        List<Product> products = productService.getAllProducts();
+        int updatedCount = 0;
+
+        for (Product p : products) {
+            // 1. გამოვრიცხოთ LIGHTING
+            if (p.getCategory() == Product.Category.LIGHTING) continue;
+
+            // 2. ვამოწმებთ ვოლტაჟს
+            String v = p.getVoltage();
+            if (v == null || !(v.equalsIgnoreCase("M12") || v.equalsIgnoreCase("M18") || v.equalsIgnoreCase("230V"))) {
+                continue; // თუ სხვა ვოლტაჟია (ან ცარიელია), ვტოვებთ ხელუხლებლად
+            }
+
+            // 3. ვაერთიანებთ სახელს და SKU-ს და ვაქცევთ დიდ ასოებად ძებნის გასამარტივებლად
+            String textToAnalyze = (p.getName() + " " + (p.getSku() != null ? p.getSku() : "")).toUpperCase();
+            boolean changed = false;
+
+            // ლოგიკა Milwaukee-ს კოდებისთვის ტირეს (-) მიხედვით:
+            if (textToAnalyze.contains("-0X") || textToAnalyze.contains("-0C")) {
+                // მხოლოდ ხელსაწყო + ქეისი (მაგ: FPD2-0X)
+                p.setHasBattery(false); p.setHasCharger(false); p.setHasCase(true); p.setIsToolOnly(true);
+                changed = true;
+            }
+            else if (textToAnalyze.matches(".*-0\\b.*") || textToAnalyze.endsWith("-0")) {
+                // მხოლოდ ხელსაწყო, ქეისის გარეშე (მაგ: FPD2-0)
+                p.setHasBattery(false); p.setHasCharger(false); p.setHasCase(false); p.setIsToolOnly(true);
+                changed = true;
+            }
+            else if (textToAnalyze.matches(".*-[1-9]\\d*[XC].*")) {
+                // ელემენტები + დამტენი + ქეისი (მაგ: -502X, -402C, -202X)
+                p.setHasBattery(true); p.setHasCharger(true); p.setHasCase(true); p.setIsToolOnly(false);
+                changed = true;
+            }
+            else if (textToAnalyze.matches(".*-[1-9]\\d*\\b.*")) {
+                // ელემენტები + დამტენი (მაგ: -502, ქეისის გარეშე - იშვიათია, მაგრამ დავაზღვიოთ)
+                p.setHasBattery(true); p.setHasCharger(true); p.setHasCase(false); p.setIsToolOnly(false);
+                changed = true;
+            }
+
+            // თუ რომელიმე პირობა დააკმაყოფილა, ვინახავთ ბაზაში
+            if (changed) {
+                productService.saveProduct(p);
+                updatedCount++;
+            }
+        }
+        return "გილოცავ! წარმატებით განახლდა " + updatedCount + " პროდუქტის კომპლექტაცია! 🚀 ახლა შეგიძლია დაბრუნდე მთავარ გვერდზე.";
+    }
+
+
 }
