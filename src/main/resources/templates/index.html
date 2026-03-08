@@ -32,6 +32,59 @@
       padding: 20px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
+
+    /* 🛒 კალათის ანიმაციები */
+    .cart-btn-custom {
+      transition: all 0.3s ease;
+      background-color: #f8f9fa;
+      border: 2px solid #343a40;
+      color: #343a40;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 8px 18px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* მაუსის მიტანის ეფექტი */
+    .cart-btn-custom:hover {
+      background-color: #343a40;
+      color: #ffffff;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(52, 58, 64, 0.3);
+    }
+
+    /* დაკლიკების (დაჭერის) ეფექტი */
+    .cart-btn-custom:active {
+      transform: translateY(1px);
+    }
+
+    /* ეტლის შერხევა */
+    .cart-btn-custom:hover i {
+      animation: cartWiggle 0.4s ease-in-out;
+    }
+
+    @keyframes cartWiggle {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(-15deg); }
+      50% { transform: rotate(10deg); }
+      75% { transform: rotate(-15deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* ბეჯის (ციფრის) წითელი პულსაცია */
+    .badge-pulse {
+      animation: pulseRed 2s infinite;
+    }
+
+    @keyframes pulseRed {
+      0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+
+
   </style>
 </head>
 <body class="bg-light">
@@ -59,13 +112,17 @@
       </div>
 
       <!-- კალათის თანამედროვე ღილაკი -->
-      <a href="/cart" class="btn position-relative" style="background-color: #f8f9fa; border: 2px solid #343a40; color: #343a40; font-weight: 600; border-radius: 10px; padding: 8px 18px;">
-        <i class="fas fa-shopping-cart me-1"></i> კალათა
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light"
+      <!-- კალათის ანიმირებული ღილაკი -->
+      <a href="/cart" class="cart-btn-custom position-relative">
+        <i class="fas fa-shopping-cart me-2"></i> კალათა
+
+        <!-- წითელი ბეჯი පულსაციით -->
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light badge-pulse"
               style="font-size: 0.85rem; padding: 5px 8px;"
               th:if="${cartCount != null && cartCount > 0}"
               th:text="${cartCount}">0</span>
       </a>
+
 
     </div>
   </div>
