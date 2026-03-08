@@ -36,30 +36,41 @@
 </head>
 <body class="bg-light">
 
-<!-- ნავიგაცია (Navbar) -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-  <div class="container">
-    <a class="navbar-brand fw-bold" href="/">GWG Tools 🛠️</a>
+<!-- გაუმჯობესებული ნავიგაცია (Navbar) -->
+<nav class="navbar navbar-expand-lg sticky-top" style="background-color: #ffffff; border-bottom: 3px solid #dc3545; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+  <div class="container py-1">
+    <!-- ლოგო -->
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <div style="background-color: #dc3545; color: white; padding: 5px 12px; border-radius: 6px; font-weight: 800; letter-spacing: 1px; font-size: 1.4rem;">
+        GWG <span style="font-weight: 300;">TOOLS</span>
+      </div>
+    </a>
 
+    <!-- მარჯვენა მხარე (კალათა და ადმინი) -->
     <div class="d-flex align-items-center">
-      <div sec:authorize="isAuthenticated()" class="d-flex align-items-center me-3">
-        <span class="text-white me-3 small d-none d-md-block">გამარჯობა, ადმინ! 👋</span>
-        <a href="/products" class="btn btn-outline-light btn-sm me-2">ადმინ პანელი</a>
-        <a href="/orders" class="btn btn-info btn-sm me-2">შეკვეთები</a>
+
+      <div sec:authorize="isAuthenticated()" class="d-flex align-items-center me-3 p-2 bg-light rounded-pill border">
+        <i class="fas fa-user-shield text-danger me-2 ms-2"></i>
+        <span class="fw-semibold text-dark me-3 small d-none d-md-block">ადმინისტრატორი</span>
+        <a href="/products" class="btn btn-outline-dark btn-sm rounded-pill me-2 fw-bold" style="font-size: 0.8rem;">პანელი</a>
         <form th:action="@{/logout}" method="post" class="d-inline">
-          <button class="btn btn-danger btn-sm">გასვლა</button>
+          <button class="btn btn-danger btn-sm rounded-pill fw-bold" style="font-size: 0.8rem;">გასვლა</button>
         </form>
       </div>
 
-      <a href="/cart" class="btn btn-outline-warning position-relative">
-        🛒 კალათა
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+      <!-- კალათის თანამედროვე ღილაკი -->
+      <a href="/cart" class="btn position-relative" style="background-color: #f8f9fa; border: 2px solid #343a40; color: #343a40; font-weight: 600; border-radius: 10px; padding: 8px 18px;">
+        <i class="fas fa-shopping-cart me-1"></i> კალათა
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light"
+              style="font-size: 0.85rem; padding: 5px 8px;"
               th:if="${cartCount != null && cartCount > 0}"
               th:text="${cartCount}">0</span>
       </a>
+
     </div>
   </div>
 </nav>
+
 
 <!-- კატეგორიების ბარი -->
 <div class="bg-white shadow-sm mb-4 border-bottom py-3">
@@ -280,16 +291,20 @@
   </div>
 </div>
 
-<footer class="text-center py-4 mt-5 text-muted border-top">
-  <p>&copy; 2026 GWG Tools. ყველა უფლება დაცულია.</p>
-</footer>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#212529; color:#fff; padding:14px 20px; z-index:9999; border-top:3px solid #ffc107;">
-  <div class="container d-flex align-items-center justify-content-between flex-wrap gap-2">
-    <p class="mb-0" style="font-size:14px;">🍪 ჩვენ ვიყენებთ cookie-ებს საიტის გამართული მუშაობისთვის.</p>
-    <button onclick="acceptCookies()" class="btn btn-warning btn-sm fw-bold">✓ ვეთანხმები</button>
+<div id="cookieBanner" style="display:none; position:fixed; bottom:20px; left:20px; right:20px; max-width: 600px; margin: 0 auto; background-color: rgba(33, 37, 41, 0.95); color:#fff; padding:25px; border-radius: 12px; z-index:9999; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #444;">
+  <div class="d-flex flex-column gap-3 text-center">
+    <div>
+      <h5 class="fw-bold mb-2 text-warning">🍪 Cookie ფაილები და პოლიტიკა</h5>
+      <p class="mb-0 text-light" style="font-size:14.5px; line-height: 1.5;">
+        ჩვენი ვებ-გვერდი იყენებს cookie ფაილებს საუკეთესო გამოცდილების უზრუნველსაყოფად. საიტის გამოყენებით თქვენ ეთანხმებით ჩვენს <a href="#" class="text-warning text-decoration-underline">წესებსა და პირობებს</a>.
+      </p>
+    </div>
+    <div class="d-flex justify-content-center gap-2">
+      <button onclick="acceptCookies()" class="btn btn-warning fw-bold px-4 rounded-pill">მესმის და ვეთანხმები</button>
+    </div>
   </div>
 </div>
+
 <script>
   function acceptCookies() { localStorage.setItem('cookiesAccepted', 'true'); document.getElementById('cookieBanner').style.display = 'none'; }
   window.addEventListener('load', function () { if (!localStorage.getItem('cookiesAccepted')) { document.getElementById('cookieBanner').style.display = 'block'; } });
