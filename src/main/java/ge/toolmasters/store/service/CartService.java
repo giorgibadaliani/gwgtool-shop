@@ -44,10 +44,15 @@ public class CartService {
         items.clear();
     }
 
-    // სრული ჯამური თანხა
-    public double getTotalAmount() {
+    // 🌟 სრული ჯამური თანხის დათვლა კალათისთვის და ბანკისთვის 🌟
+    public double getTotal() {
+        if (items == null || items.isEmpty()) {
+            return 0.0;
+        }
         return items.stream()
-                .mapToDouble(CartItem::getTotalPrice)
+                .mapToDouble(item -> item.getProduct().getDiscountedPrice() * item.getQuantity())
                 .sum();
     }
+
+
 }

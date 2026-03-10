@@ -24,11 +24,12 @@ public class CartController {
     // 1. კალათის ნახვა
     @GetMapping
     public String showCart(Model model) {
-        // ეს ხაზი ჩაამატე index, product_details და cart მეთოდებში return-მდე
+        // გადავცემთ კალათის რაოდენობას
         model.addAttribute("cartCount", cartService.getItems().size());
 
+        // გადავცემთ ნივთებს და 🌟შეცვლილ🌟 ჯამურ თანხას
         model.addAttribute("items", cartService.getItems());
-        model.addAttribute("total", cartService.getTotalAmount());
+        model.addAttribute("total", cartService.getTotal()); // <-- აქ შეიცვალა getTotal()-ით
         return "cart"; // გახსნის cart.html-ს
     }
 
@@ -52,9 +53,7 @@ public class CartController {
     // 4. კალათის გასუფთავება
     @GetMapping("/clear")
     public String clearCart() {
-
         cartService.clearCart();
         return "redirect:/cart";
-
     }
 }
