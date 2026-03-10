@@ -1,122 +1,92 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta charset="UTF-8">
   <title>შეკვეთის გაფორმება</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="container mt-5">
+<body class="bg-light pb-5">
 
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-header bg-success text-white">
-        <h4 class="mb-0">შეკვეთის გაფორმება</h4>
-      </div>
-      <div class="card-body">
-        <h5 class="mb-4">გადასახდელი თანხა: <span class="fw-bold" th:text="${total} + ' ₾'"></span></h5>
+<!-- ნავიგაცია -->
+<nav class="navbar navbar-expand-lg bg-white shadow-sm mb-5 border-bottom border-danger border-3">
+  <div class="container py-2">
+    <a class="navbar-brand fw-bolder text-dark" href="/">
+      <span class="bg-danger text-white px-2 py-1 rounded me-1">GWG</span> TOOLS
+    </a>
+  </div>
+</nav>
 
-        <form th:action="@{/checkout}" th:object="${order}" method="POST">
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
 
-          <div class="mb-3">
-            <label>სახელი, გვარი</label>
-            <input type="text" th:field="*{customerName}" class="form-control" required placeholder="გიორგი გიორგაძე">
-          </div>
-
-          <div class="mb-3">
-            <label>ტელეფონი</label>
-            <input type="tel" th:field="*{customerPhone}" class="form-control" required placeholder="555 12 34 56">
-          </div>
-
-          <div class="mb-3">
-            <label>მისამართი</label>
-            <textarea th:field="*{customerAddress}" class="form-control" rows="3" required placeholder="ქალაქი, ქუჩა, ბინა"></textarea>
-          </div>
-
-          <div class="d-grid">
-            <button type="submit" class="btn btn-success btn-lg">შეკვეთის დადასტურება</button>
-          </div>
-        </form>
-
-        <!-- ====== ᲒᲐᲓᲐᲮᲓᲘᲡ ᲛᲔᲗᲝᲓᲔᲑᲘ ====== -->
-        <div class="mt-4">
-          <h6 class="text-muted mb-3">💳 გადახდის მეთოდები</h6>
-
-          <!-- ბანკ-ბანკ გადარიცხვა -->
-          <div class="card border-0 shadow-sm mb-3">
-            <div class="card-body">
-              <h6 class="fw-bold mb-2">🏦 საბანკო გადარიცხვა</h6>
-              <div class="row g-2">
-                <div class="col-6 col-md-3">
-                  <div class="border rounded p-2 text-center" style="background:#f8f9fa;">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/TBC_Bank_logo.svg/200px-TBC_Bank_logo.svg.png"
-                         height="30" style="object-fit:contain;" alt="TBC">
-                    <div class="small mt-1 text-muted">TBC Bank</div>
-                  </div>
-                </div>
-                <div class="col-6 col-md-3">
-                  <div class="border rounded p-2 text-center" style="background:#f8f9fa;">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Bank_of_Georgia_logo.svg/200px-Bank_of_Georgia_logo.svg.png"
-                         height="30" style="object-fit:contain;" alt="BoG">
-                    <div class="small mt-1 text-muted">Bank of Georgia</div>
-                  </div>
-                </div>
-                <div class="col-6 col-md-3">
-                  <div class="border rounded p-2 text-center" style="background:#f8f9fa;">
-                    <div style="height:30px; line-height:30px; font-weight:bold; font-size:12px; color:#e63946;">Credo</div>
-                    <div class="small mt-1 text-muted">Credo Bank</div>
-                  </div>
-                </div>
-                <div class="col-6 col-md-3">
-                  <div class="border rounded p-2 text-center" style="background:#f8f9fa;">
-                    <div style="height:30px; line-height:30px; font-weight:bold; font-size:12px; color:#2d6a4f;">Cartu</div>
-                    <div class="small mt-1 text-muted">Cartu Bank</div>
-                  </div>
-                </div>
-              </div>
-              <p class="small text-muted mt-2 mb-0">
-                შეკვეთის გაფორმების შემდეგ გამოგზავნით ანგარიშის დეტალებს.
-              </p>
-            </div>
-          </div>
-
-          <!-- TBC განვადება -->
-          <div class="card border-warning shadow-sm">
-            <div class="card-header bg-warning text-dark fw-bold">
-              ✨ TBC განვადება — 0% საპროცენტო!
-            </div>
-            <div class="card-body">
-              <p class="mb-2 small">TBC ბარათის მფლობელებს შეუძლიათ გადაიხადონ <strong>12 თვემდე განვადებით</strong> სარგებლის გარეშე.</p>
-              <div class="row g-2 text-center">
-                <div class="col-4">
-                  <div class="border rounded p-2 bg-light">
-                    <div class="fw-bold text-primary">3 თვე</div>
-                    <div class="small text-muted">0% სარგებელი</div>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="border rounded p-2 bg-light">
-                    <div class="fw-bold text-primary">6 თვე</div>
-                    <div class="small text-muted">0% სარგებელი</div>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="border rounded p-2 bg-light">
-                    <div class="fw-bold text-primary">12 თვე</div>
-                    <div class="small text-muted">0% სარგებელი</div>
-                  </div>
-                </div>
-              </div>
-              <p class="small text-muted mt-2 mb-0">
-                * განვადება მუშაობს TBC Pay და TBC ბარათით გადახდისას.
-                დეტალებს მენეჯერი მოგაწვდით შეკვეთის შემდეგ.
-              </p>
-            </div>
-          </div>
+      <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+        <div class="card-header bg-dark text-white p-4">
+          <h4 class="mb-0 fw-bold"><i class="fas fa-box-open text-danger me-2"></i>შეკვეთის გაფორმება</h4>
         </div>
-        <!-- ====== /ᲒᲐᲓᲐᲮᲓᲘᲡ ᲛᲔᲗᲝᲓᲔᲑᲘ ====== -->
 
+        <div class="card-body p-4 p-md-5">
+          <div class="d-flex justify-content-between align-items-center mb-4 bg-light p-3 rounded border">
+            <h6 class="m-0 text-muted fw-bold">გადასახდელი თანხა:</h6>
+            <h3 class="m-0 text-success fw-bolder" th:text="${total} + ' ₾'">0 ₾</h3>
+          </div>
 
+          <form th:action="@{/checkout}" th:object="${order}" method="POST">
+
+            <!-- საკონტაქტო ინფო -->
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3 border-bottom pb-2">👤 საკონტაქტო ინფორმაცია</h6>
+
+              <div class="mb-3">
+                <label class="form-label small text-muted fw-semibold">სახელი და გვარი</label>
+                <input type="text" th:field="*{customerName}" class="form-control" required placeholder="მაგ: გიორგი გიორგაძე">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small text-muted fw-semibold">ტელეფონის ნომერი</label>
+                <input type="tel" th:field="*{customerPhone}" class="form-control" required placeholder="მაგ: 555 12 34 56">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small text-muted fw-semibold">მისამართი (ქალაქი, ქუჩა)</label>
+                <textarea th:field="*{customerAddress}" class="form-control" rows="2" required placeholder="თბილისი, პეკინის გამზ. 14"></textarea>
+              </div>
+            </div>
+
+            <!-- ღილაკები / გადახდის მეთოდის არჩევა -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">💳 აირჩიეთ გადახდის მეთოდი</h6>
+
+            <div class="d-grid gap-3 mt-3">
+
+              <!-- ვარიანტი 1: ბარათით გადახდა (BOG) -->
+              <button type="submit" name="paymentMethod" value="ONLINE" class="btn btn-warning btn-lg fw-bold d-flex justify-content-between align-items-center px-4" style="background-color: #f7931e; border-color: #f7931e; color: white;">
+                <span><i class="fas fa-credit-card me-2"></i>ბარათით გადახდა (BOG)</span>
+                <i class="fas fa-chevron-right"></i>
+              </button>
+
+              <!-- ვარიანტი 2: გადარიცხვა / ნაღდი ფული -->
+              <button type="submit" name="paymentMethod" value="MANUAL" class="btn btn-outline-dark btn-lg fw-bold d-flex justify-content-between align-items-center px-4">
+                <span><i class="fas fa-money-bill-wave me-2"></i>საბანკო გადარიცხვა</span>
+                <i class="fas fa-check"></i>
+              </button>
+
+            </div>
+
+          </form>
+
+          <!-- საინფორმაციო ბლოკი ბანკებზე -->
+          <div class="mt-5 text-center">
+            <p class="small text-muted mb-2">მხარდაჭერილი ბანკები გადარიცხვისთვის:</p>
+            <div class="d-flex justify-content-center gap-3">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/TBC_Bank_logo.svg/200px-TBC_Bank_logo.svg.png" height="15" alt="TBC" style="opacity: 0.7;">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Bank_of_Georgia_logo.svg/200px-Bank_of_Georgia_logo.svg.png" height="15" alt="BOG" style="opacity: 0.7;">
+            </div>
+          </div>
+
+        </div>
       </div>
+
     </div>
   </div>
 </div>
