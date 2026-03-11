@@ -3,7 +3,9 @@ package ge.toolmasters.store.service;
 import ge.toolmasters.store.entity.Product;
 import ge.toolmasters.store.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // 🌟 ახალი იმპორტი
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
@@ -42,6 +44,8 @@ public class ProductService {
     }
 
     // 6. მარაგის შემცირება (შეძენის შემდეგ)
+    // 🌟 დამატებულია @Transactional უსაფრთხოებისთვის 🌟
+    @Transactional
     public void reduceStock(Long productId, int quantity) {
         Product product = productRepository.findById(productId).orElse(null);
         if (product != null && product.getStockQuantity() != null) {
