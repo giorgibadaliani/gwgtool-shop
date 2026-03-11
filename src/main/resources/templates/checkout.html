@@ -39,17 +39,24 @@
               <h6 class="fw-bold mb-3 border-bottom pb-2">👤 საკონტაქტო ინფორმაცია</h6>
 
               <div class="mb-3">
-                <label class="form-label small text-muted fw-semibold">სახელი და გვარი</label>
+                <label class="form-label small text-muted fw-semibold">სახელი და გვარი <span class="text-danger">*</span></label>
                 <input type="text" th:field="*{customerName}" class="form-control" required placeholder="მაგ: გიორგი გიორგაძე">
               </div>
 
               <div class="mb-3">
-                <label class="form-label small text-muted fw-semibold">ტელეფონის ნომერი</label>
+                <label class="form-label small text-muted fw-semibold">ტელეფონის ნომერი <span class="text-danger">*</span></label>
                 <input type="tel" th:field="*{customerPhone}" class="form-control" required placeholder="მაგ: 555 12 34 56">
               </div>
 
+              <!-- 🌟 დამატებული ელ-ფოსტის ველი 🌟 -->
               <div class="mb-3">
-                <label class="form-label small text-muted fw-semibold">მისამართი (ქალაქი, ქუჩა)</label>
+                <label class="form-label small text-muted fw-semibold">ელ-ფოსტა (სურვილისამებრ)</label>
+                <input type="email" th:field="*{customerEmail}" class="form-control" placeholder="მაგ: info@gwgtools.ge">
+                <div class="form-text" style="font-size: 0.75rem;">შეკვეთის დეტალებს გამოგიგზავნით მეილზე.</div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small text-muted fw-semibold">მისამართი (ქალაქი, ქუჩა) <span class="text-danger">*</span></label>
                 <textarea th:field="*{customerAddress}" class="form-control" rows="2" required placeholder="თბილისი, პეკინის გამზ. 14"></textarea>
               </div>
             </div>

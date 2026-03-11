@@ -1,85 +1,119 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>შეკვეთები</title>
+  <meta charset="UTF-8">
+  <title>შეკვეთების მართვა</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-light">
 
-<nav class="navbar navbar-dark bg-dark mb-4">
-  <div class="container">
-    <a class="navbar-brand" href="/">GWG-TOOLS Admin</a>
-    <a href="/products" class="btn btn-outline-light">პროდუქტები</a>
+<!-- ადმინის ნავიგაცია -->
+<nav class="navbar navbar-expand-lg bg-dark navbar-dark shadow-sm mb-4">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold" href="/">
+      <i class="fas fa-tools text-danger me-2"></i>GWG Admin
+    </a>
+    <div class="d-flex align-items-center">
+      <a href="/products" class="btn btn-outline-light btn-sm me-3"><i class="fas fa-box me-1"></i>პროდუქტები</a>
+      <span class="text-light fw-semibold"><i class="fas fa-user-shield text-danger me-2"></i>შეკვეთების მენეჯერი</span>
+    </div>
   </div>
 </nav>
 
-<div class="container">
-  <h2 class="mb-4">შემოსული შეკვეთები</h2>
+<div class="container-fluid px-4 pb-5">
 
-  <table class="table table-hover bg-white shadow-sm mt-3">
-    <thead class="table-dark">
-    <tr>
-      <th>ID</th>
-      <th>თარიღი</th>
-      <th>მყიდველი</th>
-      <th>ნივთები + SKU</th>
-      <th>თანხა</th>
-      <th>სტატუსი</th>
-      <th>მოქმედება</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="order : ${orders}">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-dark"><i class="fas fa-clipboard-list text-primary me-2"></i>შემოსული შეკვეთები</h3>
+  </div>
 
-      <td th:text="${order.id}">1</td>
+  <div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body p-0 overflow-auto">
+      <table class="table table-hover align-middle mb-0" style="min-width: 1000px;">
+        <thead class="table-dark">
+        <tr>
+          <th class="ps-4 py-3">ID / თარიღი</th>
+          <th class="py-3">კლიენტის დეტალები</th>
+          <th class="py-3">მისამართი</th>
+          <th class="py-3" style="width: 25%;">პროდუქცია (SKU)</th>
+          <th class="py-3">ჯამი</th>
+          <th class="py-3">სტატუსის შეცვლა</th>
+          <th class="py-3 pe-4 text-center">წაშლა</th>
+        </tr>
+        </thead>
+        <tbody>
 
-      <td th:text="${#temporals.format(order.orderDate, 'dd-MM HH:mm')}">Date</td>
+        <!-- თუ შეკვეთები არ არის -->
+        <tr th:if="${orders.isEmpty()}">
+          <td colspan="7" class="text-center py-5 text-muted">
+            <i class="fas fa-box-open fs-1 mb-3"></i>
+            <h5>ჯერჯერობით შეკვეთები არ არის</h5>
+          </td>
+        </tr>
 
-      <td>
-        <div th:text="${order.customerName}" class="fw-bold">Giorgi</div>
-        <div th:text="${order.customerPhone}" class="small text-muted">555...</div>
-      </td>
+        <!-- შეკვეთების სია -->
+        <tr th:each="order : ${orders}">
+          <!-- ID და თარიღი -->
+          <td class="ps-4">
+            <span class="badge bg-secondary mb-1" th:text="'ORD-' + ${order.id}">ORD-1</span><br>
+            <small class="text-muted fw-semibold" th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}">12-03-2026 14:30</small>
+          </td>
 
-      <!-- ✅ ნივთები + SKU — ახალი ფორმატი -->
-      <td style="max-width: 250px;">
-        <div class="small" th:text="${order.itemsDescription}"></div>
-      </td>
+          <!-- კლიენტი -->
+          <td>
+            <div class="fw-bold text-dark" th:text="${order.customerName}">გიორგი გიორგაძე</div>
+            <div class="small text-muted"><i class="fas fa-phone-alt me-1"></i><span th:text="${order.customerPhone}">555123456</span></div>
+            <div class="small text-muted" th:if="${order.customerEmail != null and order.customerEmail != ''}"><i class="fas fa-envelope me-1"></i><span th:text="${order.customerEmail}">a@a.com</span></div>
+          </td>
 
-      <td th:text="${order.totalAmount} + ' ₾'" class="fw-bold">100 ₾</td>
+          <!-- მისამართი -->
+          <td>
+            <div class="small" style="max-width: 200px; white-space: normal;" th:text="${order.customerAddress}">თბილისი, პეკინის 14</div>
+          </td>
 
-      <td>
-        <span class="badge"
-              th:classappend="${order.status == 'NEW' ? 'bg-primary' :
-                               (order.status == 'SHIPPED' ? 'bg-warning text-dark' : 'bg-success')}"
-              th:text="${order.status}">
-        </span>
-      </td>
+          <!-- ნივთები -->
+          <td>
+            <div class="bg-light p-2 rounded small border" style="max-height: 80px; overflow-y: auto;" th:text="${order.itemsDescription}">
+              Drill [SKU: 123] (1), Battery [SKU: 456] (2)
+            </div>
+          </td>
 
-      <td>
-        <div class="d-flex gap-2">
-          <form th:if="${order.status == 'NEW'}"
-                th:action="@{'/orders/' + ${order.id} + '/status'}" method="post">
-            <input type="hidden" name="status" value="SHIPPED">
-            <button type="submit" class="btn btn-sm btn-outline-primary">📦 გაგზავნა</button>
-          </form>
+          <!-- თანხა -->
+          <td>
+            <span class="fw-bold text-success fs-5" th:text="${order.totalAmount} + ' ₾'">150 ₾</span>
+          </td>
 
-          <form th:if="${order.status == 'SHIPPED'}"
-                th:action="@{'/orders/' + ${order.id} + '/status'}" method="post">
-            <input type="hidden" name="status" value="DELIVERED">
-            <button type="submit" class="btn btn-sm btn-outline-success">✅ ჩაბარება</button>
-          </form>
+          <!-- სტატუსის მართვა -->
+          <td>
+            <form th:action="@{/orders/{id}/status(id=${order.id})}" method="POST" class="d-flex gap-2">
+              <select name="status" class="form-select form-select-sm shadow-none" style="width: 180px;"
+                      th:classappend="${order.status == 'გადახდილია 💳' ? 'bg-success text-white' : (order.status == 'ახალი შეკვეთა 🆕' ? 'bg-warning text-dark' : 'bg-light text-dark')}">
+                <option value="ახალი შეკვეთა 🆕" th:selected="${order.status == 'ახალი შეკვეთა 🆕'}">ახალი შეკვეთა 🆕</option>
+                <option value="ონლაინ გადახდის მოლოდინში ⏳" th:selected="${order.status == 'ონლაინ გადახდის მოლოდინში ⏳'}">მოლოდინში ⏳</option>
+                <option value="გადახდილია 💳" th:selected="${order.status == 'გადახდილია 💳'}">გადახდილია 💳</option>
+                <option value="გაიგზავნა 🚚" th:selected="${order.status == 'გაიგზავნა 🚚'}">გაიგზავნა 🚚</option>
+                <option value="ჩაბარებულია ✅" th:selected="${order.status == 'ჩაბარებულია ✅'}">ჩაბარებულია ✅</option>
+                <option value="გაუქმებულია ❌" th:selected="${order.status == 'გაუქმებულია ❌'}">გაუქმებულია ❌</option>
+              </select>
+              <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i></button>
+            </form>
+          </td>
 
-          <form th:action="@{'/orders/' + ${order.id} + '/delete'}" method="post">
-            <button type="submit" class="btn btn-sm btn-danger"
-                    onclick="return confirm('ნამდვილად გინდა ამ შეკვეთის წაშლა?')">🗑️</button>
-          </form>
-        </div>
-      </td>
-
-    </tr>
-    </tbody>
-  </table>
+          <!-- წაშლა -->
+          <td class="pe-4 text-center">
+            <form th:action="@{/orders/{id}/delete(id=${order.id})}" method="POST">
+              <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle" style="width: 32px; height: 32px;" onclick="return confirm('ნამდვილად გსურთ შეკვეთის წაშლა?');">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -16,15 +16,14 @@ public class Order {
     // მყიდველის ინფო
     private String customerName;
     private String customerPhone;
+    private String customerEmail; // 🌟 ახალი: ელ-ფოსტის ველი ინვოისებისთვის
     private String customerAddress;
 
     // შეკვეთის დეტალები
     private Double totalAmount;
     private LocalDateTime orderDate;
-    private String status; // მაგ: "NEW", "SHIPPED", "DELIVERED"
+    private String status; // მაგ: "ახალი შეკვეთა 🆕", "გადახდილია 💳"
 
-    // აქ შეგვიძლია შევინახოთ ნივთების სია ტექსტად (მარტივი გზა)
-    // ან ცალკე ცხრილში (რთული გზა). დამწყებისთვის ტექსტიც საკმარისია.
     @Column(columnDefinition = "TEXT")
     private String itemsDescription; // მაგ: "Drill x1, Battery x2"
 
@@ -32,6 +31,9 @@ public class Order {
     @PrePersist
     protected void onCreate() {
         orderDate = LocalDateTime.now();
-        status = "NEW";
+        // თუ სტატუსი ცარიელია (მაგ: ბანკისგან არ მოუნიჭებია), მაშინ ვწერთ "ახალს"
+        if (this.status == null) {
+            this.status = "ახალი შეკვეთა 🆕";
+        }
     }
 }
