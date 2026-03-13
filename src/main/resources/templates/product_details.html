@@ -4,11 +4,9 @@
   <meta charset="UTF-8">
   <title th:text="${product.name} + ' - დეტალები'">დეტალები</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <!-- Font Awesome აიქონებისთვის -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    /* 🛒 კალათის ანიმაციები ნავიგაციისთვის */
     .cart-btn-custom {
       transition: all 0.3s ease;
       background-color: #f8f9fa;
@@ -48,8 +46,6 @@
       70% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
       100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
     }
-
-    /* შიდა გვერდის ანიმაციები */
     .product-img-container img {
       transition: transform 0.3s ease;
     }
@@ -64,21 +60,26 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 15px rgba(13, 110, 253, 0.5);
     }
+    /* გარანტიის პულსაცია */
+    .warranty-badge {
+      animation: pulseGreen 2s infinite;
+    }
+    @keyframes pulseGreen {
+      0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.4); }
+      70% { box-shadow: 0 0 0 6px rgba(25, 135, 84, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+    }
   </style>
 </head>
 <body class="bg-light">
 
-<!-- გაუმჯობესებული ნავიგაცია (Navbar) -->
 <nav class="navbar navbar-expand-lg sticky-top mb-4" style="background-color: #ffffff; border-bottom: 3px solid #dc3545; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
   <div class="container py-1">
-    <!-- ლოგო -->
     <a class="navbar-brand d-flex align-items-center gap-2" href="/">
       <div style="background-color: #dc3545; color: white; padding: 5px 12px; border-radius: 6px; font-weight: 800; letter-spacing: 1px; font-size: 1.4rem;">
         GWG <span style="font-weight: 300;">TOOLS</span>
       </div>
     </a>
-
-    <!-- მარჯვენა მხარე -->
     <div class="d-flex align-items-center">
       <div sec:authorize="isAuthenticated()" class="d-flex align-items-center me-3 p-2 bg-light rounded-pill border">
         <i class="fas fa-user-shield text-danger me-2 ms-2"></i>
@@ -88,8 +89,6 @@
           <button class="btn btn-danger btn-sm rounded-pill fw-bold" style="font-size: 0.8rem;">გასვლა</button>
         </form>
       </div>
-
-      <!-- ანიმირებული კალათა -->
       <a href="/cart" class="cart-btn-custom position-relative">
         <i class="fas fa-shopping-cart me-2"></i> კალათა
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light badge-pulse"
@@ -104,19 +103,15 @@
 <div class="container my-5 pb-5">
   <div class="row bg-white p-4 p-md-5 shadow border rounded-4 align-items-center">
 
-    <!-- სურათი მარცხნივ -->
     <div class="col-md-6 text-center mb-4 mb-md-0 product-img-container">
       <img th:if="${product.imageUrl != null and #strings.startsWith(product.imageUrl, 'http')}"
            th:src="${product.imageUrl}" class="img-fluid rounded shadow-sm p-3 border bg-white" style="max-height: 450px; object-fit: contain;" alt="Product Image">
-
       <img th:if="${product.imageUrl != null and !#strings.startsWith(product.imageUrl, 'http') and product.imageUrl != 'link' and product.imageUrl != ''}"
            th:src="@{'/uploads/' + ${product.imageUrl}}" class="img-fluid rounded shadow-sm p-3 border bg-white" style="max-height: 450px; object-fit: contain;" alt="Product Image">
-
       <img th:if="${product.imageUrl == null or product.imageUrl == 'link' or product.imageUrl == ''}"
            th:src="@{/images/logo.png}" class="img-fluid rounded shadow-sm p-3 border bg-white" style="max-height: 450px; object-fit: contain;" alt="Default Logo">
     </div>
 
-    <!-- მარჯვენა სვეტი (ინფორმაცია) -->
     <div class="col-md-6 ps-md-5">
       <div class="mb-2">
         <span class="badge bg-dark text-uppercase fs-6 me-2" th:text="'SKU: ' + ${product.sku}">SKU: 12345</span>
@@ -126,7 +121,6 @@
 
       <h1 class="fw-bolder mb-3 text-dark" style="font-size: 2.2rem;" th:text="${product.name}">M18 Fuel Drill</h1>
 
-      <!-- ფასი -->
       <div class="mb-4 bg-light d-inline-block p-3 rounded-3 border">
         <div th:if="${product.discountPercentage == null or product.discountPercentage <= 0}">
           <h2 class="text-danger fw-bold m-0" th:text="${product.price} + ' ₾'">500 ₾</h2>
@@ -137,8 +131,9 @@
         </div>
       </div>
 
-      <!-- მარაგის სტატუსი -->
-      <div class="mb-4">
+      <!-- მარაგის და გარანტიის სტატუსები ერთად -->
+      <div class="mb-4 d-flex flex-wrap gap-2">
+        <!-- მარაგი -->
         <div th:if="${product.stockQuantity != null and product.stockQuantity > 5}" class="alert alert-success d-inline-block py-2 px-3 fw-bold mb-0">
           <i class="fas fa-check-circle me-1"></i> მარაგშია (<span th:text="${product.stockQuantity}"></span> ცალი)
         </div>
@@ -148,16 +143,38 @@
         <div th:if="${product.stockQuantity == null or product.stockQuantity == 0}" class="alert alert-danger d-inline-block py-2 px-3 fw-bold mb-0">
           <i class="fas fa-times-circle me-1"></i> არ არის მარაგში
         </div>
+
+        <!-- 🌟 გარანტიის სტიკერი (ჩანს მხოლოდ თუ true არის) 🌟 -->
+        <div th:if="${product.hasWarranty}" class="alert alert-success d-inline-block py-2 px-3 fw-bolder mb-0 border-success border-2 warranty-badge" style="background-color: #d1e7dd; color: #0f5132;">
+          <i class="fas fa-shield-alt fs-5 me-1 align-middle"></i> 1 წლიანი გარანტია
+        </div>
       </div>
 
-      <!-- პროდუქტის სპეციფიკაციები (აღწერა) -->
+      <!-- 📦 რა მოყვება კომპლექტში -->
+      <div class="mb-4 border rounded-3 overflow-hidden shadow-sm" th:if="${product.hasBattery != null or product.hasCharger != null or product.hasCase != null}">
+        <div class="bg-dark text-white px-3 py-2 fw-bold" style="font-size: 0.9rem;">
+          <i class="fas fa-box-open me-2"></i> ყუთში შედის:
+        </div>
+        <div class="bg-white p-3 d-flex flex-wrap gap-4">
+          <div th:class="${product.hasBattery ? 'text-success fw-bold' : 'text-muted text-decoration-line-through'}">
+            <i class="fas fa-battery-full me-1"></i> ელემენტი
+          </div>
+          <div th:class="${product.hasCharger ? 'text-primary fw-bold' : 'text-muted text-decoration-line-through'}">
+            <i class="fas fa-plug me-1"></i> დამტენი
+          </div>
+          <div th:class="${product.hasCase ? 'text-warning fw-bold' : 'text-muted text-decoration-line-through'}">
+            <i class="fas fa-toolbox me-1"></i> ქეისი
+          </div>
+        </div>
+      </div>
+
+      <!-- მახასიათებლები -->
       <div class="mt-4 mb-4" th:if="${product.description != null and product.description != ''}">
         <h5 class="fw-bold border-bottom pb-2 text-secondary"><i class="fas fa-list-ul me-2"></i>მახასიათებლები</h5>
         <div class="p-3 bg-light rounded-3 border text-dark" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;" th:text="${product.description}">
         </div>
       </div>
 
-      <!-- ღილაკები -->
       <div class="d-grid gap-3 mt-4">
         <a th:if="${product.stockQuantity != null and product.stockQuantity > 0}" th:href="@{/cart/add/{id}(id=${product.id})}" class="btn btn-primary btn-add-cart py-3 fw-bold fs-5 rounded-pill">
           <i class="fas fa-cart-plus me-2"></i> კალათაში დამატება

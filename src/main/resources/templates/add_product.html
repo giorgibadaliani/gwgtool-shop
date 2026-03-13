@@ -3,6 +3,7 @@
 <head>
     <title>პროდუქტის დამატება/რედაქტირება</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="container mt-5">
 
@@ -26,7 +27,7 @@
                         <label>კატეგორია</label>
                         <select th:field="*{category}" class="form-select" required>
                             <option value="">-- აირჩიე კატეგორია --</option>
-                            <option th:each="cat : ${T(ge.toolmasters.store.entity.Category).values()}"
+                            <option th:each="cat : ${T(ge.toolmasters.store.entity.Product.Category).values()}"
                                     th:value="${cat}"
                                     th:text="${cat}"></option>
                         </select>
@@ -35,6 +36,16 @@
                     <div class="mb-3">
                         <label>ფასი (₾)</label>
                         <input type="number" step="0.01" th:field="*{price}" class="form-control" placeholder="150.00" required>
+                    </div>
+
+                    <!-- 🌟 გარანტიის Toggle 🌟 -->
+                    <div class="mb-3 p-3 bg-light border border-success border-opacity-50 rounded-3 shadow-sm">
+                        <div class="form-check form-switch fs-6 d-flex align-items-center mb-0">
+                            <input class="form-check-input me-3" type="checkbox" role="switch" id="hasWarranty" th:field="*{hasWarranty}" style="width: 2.5rem; height: 1.25rem; cursor: pointer;">
+                            <label class="form-check-label fw-bold text-success mb-0 mt-1" for="hasWarranty" style="cursor: pointer;">
+                                <i class="fas fa-shield-alt me-2"></i> ვრცელდება გარანტია
+                            </label>
+                        </div>
                     </div>
 
                     <div class="mb-3">

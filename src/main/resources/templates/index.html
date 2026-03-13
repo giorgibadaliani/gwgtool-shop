@@ -47,7 +47,6 @@
       align-items: center;
     }
 
-    /* მაუსის მიტანის ეფექტი */
     .cart-btn-custom:hover {
       background-color: #343a40;
       color: #ffffff;
@@ -55,12 +54,10 @@
       box-shadow: 0 6px 15px rgba(52, 58, 64, 0.3);
     }
 
-    /* დაკლიკების (დაჭერის) ეფექტი */
     .cart-btn-custom:active {
       transform: translateY(1px);
     }
 
-    /* ეტლის შერხევა */
     .cart-btn-custom:hover i {
       animation: cartWiggle 0.4s ease-in-out;
     }
@@ -73,7 +70,6 @@
       100% { transform: rotate(0deg); }
     }
 
-    /* ბეჯის (ციფრის) წითელი პულსაცია */
     .badge-pulse {
       animation: pulseRed 2s infinite;
     }
@@ -83,8 +79,6 @@
       70% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
       100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
     }
-
-
   </style>
 </head>
 <body class="bg-light">
@@ -92,16 +86,13 @@
 <!-- გაუმჯობესებული ნავიგაცია (Navbar) -->
 <nav class="navbar navbar-expand-lg sticky-top" style="background-color: #ffffff; border-bottom: 3px solid #dc3545; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
   <div class="container py-1">
-    <!-- ლოგო -->
     <a class="navbar-brand d-flex align-items-center gap-2" href="/">
       <div style="background-color: #dc3545; color: white; padding: 5px 12px; border-radius: 6px; font-weight: 800; letter-spacing: 1px; font-size: 1.4rem;">
         GWG <span style="font-weight: 300;">TOOLS</span>
       </div>
     </a>
 
-    <!-- მარჯვენა მხარე (კალათა და ადმინი) -->
     <div class="d-flex align-items-center">
-
       <div sec:authorize="isAuthenticated()" class="d-flex align-items-center me-3 p-2 bg-light rounded-pill border">
         <i class="fas fa-user-shield text-danger me-2 ms-2"></i>
         <span class="fw-semibold text-dark me-3 small d-none d-md-block">ადმინისტრატორი</span>
@@ -111,23 +102,16 @@
         </form>
       </div>
 
-      <!-- კალათის თანამედროვე ღილაკი -->
-      <!-- კალათის ანიმირებული ღილაკი -->
       <a href="/cart" class="cart-btn-custom position-relative">
         <i class="fas fa-shopping-cart me-2"></i> კალათა
-
-        <!-- წითელი ბეჯი පულსაციით -->
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light badge-pulse"
               style="font-size: 0.85rem; padding: 5px 8px;"
               th:if="${cartCount != null && cartCount > 0}"
               th:text="${cartCount}">0</span>
       </a>
-
-
     </div>
   </div>
 </nav>
-
 
 <!-- კატეგორიების ბარი -->
 <div class="bg-white shadow-sm mb-4 border-bottom py-3">
@@ -291,38 +275,37 @@
 
               <div class="mt-auto">
 
-                <!-- ფასის ლოგიკა -->
                 <div class="mb-2">
                   <h4 class="text-danger fw-bold m-0" th:if="${product.discountPercentage == null or product.discountPercentage <= 0}" th:text="${product.price} + ' ₾'">0 ₾</h4>
-
                   <div th:if="${product.discountPercentage != null and product.discountPercentage > 0}">
                     <h4 class="text-danger fw-bold m-0" th:text="${product.getDiscountedPrice()} + ' ₾'">630 ₾</h4>
                     <small class="text-muted text-decoration-line-through" th:text="${product.price} + ' ₾'">700 ₾</small>
                   </div>
                 </div>
 
-                <!-- 🚀 შეკეთებული კომპლექტაციის სტიკერები (Null-ისგან დაცული) 🚀 -->
+                <!-- 🚀 სტიკერების ბლოკი (კომპლექტაცია + გარანტია) 🚀 -->
                 <div class="position-absolute" style="top: 10px; left: 10px; display: flex; flex-direction: column; gap: 5px;">
 
                   <span th:if="${product.hasBattery != null and product.hasBattery == true}" class="badge bg-success shadow-sm" title="მოყვება ელემენტი">
                     <i class="fas fa-battery-full"></i>ბატარეა
                   </span>
-
                   <span th:if="${product.hasCharger != null and product.hasCharger == true}" class="badge bg-primary shadow-sm" title="მოყვება დამტენი">
                     <i class="fas fa-plug"></i>დამტენი
                   </span>
-
                   <span th:if="${product.hasCase != null and product.hasCase == true}" class="badge bg-warning text-dark shadow-sm" title="მოყვება ქეისი">
                     <i class="fas fa-toolbox"></i>ქეისი
                   </span>
-
                   <span th:if="${(product.hasBattery == null or product.hasBattery == false) and (product.hasCharger == null or product.hasCharger == false) and (product.hasCase == null or product.hasCase == false)}" class="badge bg-secondary shadow-sm" title="მხოლოდ ხელსაწყო">
                     მხოლოდ ხელსაწყო
                   </span>
 
+                  <!-- 🌟 ახალი: გარანტიის სტიკერი ბარათზე 🌟 -->
+                  <span th:if="${product.hasWarranty}" class="badge text-success shadow-sm border border-success" style="background-color: #d1e7dd; font-size: 0.75rem;" title="1 წლიანი ოფიციალური გარანტია">
+                    <i class="fas fa-shield-alt me-1"></i> 1 წ. გარანტია
+                  </span>
+
                 </div>
 
-                <!-- მარაგის ლოგიკა -->
                 <div class="mb-3 mt-2">
                   <small th:if="${product.stockQuantity != null and product.stockQuantity > 5}" class="text-success fw-semibold">✅ მარაგშია</small>
                   <small th:if="${product.stockQuantity != null and product.stockQuantity <= 5 and product.stockQuantity > 0}" class="text-warning fw-semibold">
