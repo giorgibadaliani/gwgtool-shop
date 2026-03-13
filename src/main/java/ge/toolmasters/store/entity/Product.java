@@ -58,6 +58,11 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private Category category;
 
+
+    @Column(name = "has_warranty", columnDefinition = "boolean default false")
+    private boolean hasWarranty;
+
+
     // --- 🚨 ახალი: კომპლექტაციის ველები 🚨 ---
     @Column(name = "has_battery")
     private Boolean hasBattery = false;
@@ -138,6 +143,15 @@ public class Product {
     public void setHasCase(Boolean hasCase) {
         this.hasCase = hasCase;
     }
+
+    public boolean getHasWarranty() {
+        return hasWarranty;
+    }
+
+    public void setHasWarranty(boolean hasWarranty) {
+        this.hasWarranty = hasWarranty;
+    }
+
 
     // 🌟 ჭკვიანი მეთოდი, რომელიც ავტომატურად ითვლის ფასდაკლებულ თანხას!
     // (გამოიძახება HTML-დან: ${product.getDiscountedPrice()})
