@@ -286,6 +286,11 @@
                 <!-- 🚀 სტიკერების ბლოკი (კომპლექტაცია + გარანტია) 🚀 -->
                 <div class="position-absolute" style="top: 5px; left: 5px; display: flex; flex-direction: column; gap: 2px;">
 
+                  <!-- 🌟 ახალი: გარანტიის სტიკერი ბარათზე 🌟 -->
+                  <span th:if="${product.hasWarranty}" class="badge text-success shadow-sm border border-success" style="background-color: #d1e7dd; font-size: 0.75rem;" title="1 წლიანი ოფიციალური გარანტია">
+                    <i class="fas fa-shield-alt me-1"></i> 1 წ. გარანტია
+                  </span>
+
                   <span th:if="${product.hasBattery != null and product.hasBattery == true}" class="badge bg-success shadow-sm" title="მოყვება ელემენტი">
                     <i class="fas fa-battery-full"></i>
                   </span>
@@ -299,10 +304,7 @@
                     მხოლოდ ხელსაწყო
                   </span>
 
-                  <!-- 🌟 ახალი: გარანტიის სტიკერი ბარათზე 🌟 -->
-                  <span th:if="${product.hasWarranty}" class="badge text-success shadow-sm border border-success" style="background-color: #d1e7dd; font-size: 0.30rem;" title="1 წლიანი ოფიციალური გარანტია">
-                    <i class="fas fa-shield-alt me-1"></i> 1 წ. გარანტია
-                  </span>
+
 
                 </div>
 
