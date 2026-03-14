@@ -225,10 +225,6 @@ public class ProductController {
         return "redirect:/products";
     }
 
-    @GetMapping("/contact")
-    public String showContactPage() {
-        return "contact";
-    }
 
 
 }
