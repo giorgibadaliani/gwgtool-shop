@@ -224,4 +224,11 @@ public class ProductController {
         productService.deleteProduct(id);
         return "redirect:/products";
     }
+
+    @GetMapping("/contact")
+    public String showContactPage() {
+        return "contact";
+    }
+
+
 }
